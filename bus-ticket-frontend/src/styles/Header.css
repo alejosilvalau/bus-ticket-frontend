@@ -1,0 +1,33 @@
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+header h1 {
+  color: white;
+  font-size: 28px;
+  margin: 0;
+  font-weight: bold;
+}
+
+header a {
+  color: white;
+  text-decoration: none;
+  margin-left: 30px;
+  font-size: 16px;
+  transition: opacity 0.3s;
+}
+
+header a:hover {
+  opacity: 0.8;
+}
