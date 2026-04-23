@@ -627,3 +627,23 @@
     max-width: 90%;
   }
 }
+.nav button,
+.login-btn,
+.register-btn,
+.logout-btn {
+  background: transparent;
+  border: 1px solid #fff;
+  color: white;
+  padding: 8px 14px;
+  margin-left: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav button:hover,
+.login-btn:hover,
+.register-btn:hover,
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}

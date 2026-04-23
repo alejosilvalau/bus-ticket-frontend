@@ -4,6 +4,11 @@ import Login from "../components/Login";
 import type { Ticket } from "../types/Ticket";
 import type { User } from "../types/index";
 import "../styles/home.css";
+import "../styles/searchBox.css";
+import "../styles/login.css";
+import "../styles/header.css";
+import { Link } from "react-router-dom";
+import  "./Offers";
 
 // Mock data - esto vendría del backend
 const MOCK_CITIES = [
@@ -92,11 +97,21 @@ function Home() {
       <header className="header">
         <div className="header-content">
           <h1 className="logo">🚌 BusTicket</h1>
-          <nav className="nav">
-            <a href="#inicio">Inicio</a>
-            <a href="#servicios">Servicios</a>
-            <a href="#contacto">Contacto</a>
-          </nav>
+         
+        <nav className="nav">
+          <Link className="nav-btn" to="/">
+            Inicio
+          </Link>
+
+          <Link className="nav-btn" to="/services">
+              Servicios
+          </Link>
+
+          <Link className="nav-btn" to="/contact">
+            Contacto
+          </Link>
+        </nav>
+
           <div className="auth-section">
             {user ? (
               <div className="user-menu">
@@ -106,12 +121,14 @@ function Home() {
                 </button>
               </div>
             ) : (
-              <button
-                className="login-btn"
-                onClick={() => setLoginOpen(true)}
-              >
-                Iniciar Sesión
-              </button>
+              <>
+                <button
+                  className="login-btn"
+                  onClick={() => setLoginOpen(true)}
+                >
+                  Iniciar Sesión
+                </button>
+              </>
             )}
           </div>
         </div>
