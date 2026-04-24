@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-import "./SearchBox.css";
+import "../styles/SearchBox.css";
 
 function SearchBox() {
   const [from, setFrom] = useState("");
@@ -8,30 +8,35 @@ function SearchBox() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    alert(`From: ${from} | To: ${to} | Date: ${date}`);
+    alert(`Buscando: De ${from} a ${to} en ${date}`);
   };
 
   return (
     <form className="search-box" onSubmit={handleSubmit}>
       <input
-        placeholder="From"
+        type="text"
+        placeholder="¿De dónde?"
         value={from}
         onChange={(e) => setFrom(e.target.value)}
+        required
       />
 
       <input
-        placeholder="To"
+        type="text"
+        placeholder="¿A dónde?"
         value={to}
         onChange={(e) => setTo(e.target.value)}
+        required
       />
 
       <input
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
+        required
       />
 
-      <button type="submit">Search Trains</button>
+      <button type="submit">Buscar</button>
     </form>
   );
 }

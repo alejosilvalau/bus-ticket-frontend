@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Bus.css';
+import '../styles/Bus.css';
 
 interface BusTab {
   id: number;

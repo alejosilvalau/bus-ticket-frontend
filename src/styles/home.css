@@ -1,103 +1,140 @@
-.home {
-  min-height: 100vh;
+.home-container {
+  padding: 100px 20px 0;
+  background: #f9f9f9;
+  min-height: calc(100vh - 70px);
+}
+
+.hero {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  text-align: center;
+  padding: 60px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  border-radius: 10px;
+  color: white;
 }
 
-/* Header */
-.header {
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 1.5rem 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+.hero h1 {
+  font-size: 48px;
+  margin: 0 0 20px 0;
+  font-weight: 700;
 }
 
-.header-content {
+.hero p {
+  font-size: 20px;
+  margin: 0 0 40px 0;
+  opacity: 0.95;
+}
+
+.benefits {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.benefit-card {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.benefit-card h3 {
+  font-size: 24px;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.benefit-card p {
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.cta {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 60px 20px;
+  border-radius: 10px;
   color: white;
-  font-size: 1.8rem;
-  margin: 0;
-  font-weight: bold;
+  text-align: center;
 }
 
-.nav {
-  display: flex;
-  gap: 2rem;
+.cta h2 {
+  font-size: 36px;
+  margin: 0 0 20px 0;
+  font-weight: 700;
 }
 
-.nav a {
+.cta p {
+  font-size: 18px;
+  margin: 0 0 30px 0;
+  opacity: 0.95;
+}
+
+.cta-btn {
+  display: inline-block;
+  background-color: #c60001;
   color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.3s;
-}
-
-.nav a:hover {
-  opacity: 0.8;
-}
-
-/* Auth Section */
-.auth-section {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.login-btn {
-  padding: 0.6rem 1.5rem;
-  background: white;
-  color: #667eea;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-name {
-  color: white;
-  font-weight: 500;
-}
-
-.logout-btn {
-  padding: 0.6rem 1.2rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid white;
+  padding: 14px 40px;
   border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: 2px solid #c60001;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.cta-btn:hover {
+  background-color: #a00001;
+  border-color: #a00001;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(198, 0, 1, 0.3);
 }
 
-/* Login Modal */
-.login-overlay {
-  position: fixed;
+@media (max-width: 768px) {
+  .home-container {
+    padding: 80px 10px 0;
+  }
+
+  .hero {
+    padding: 40px 20px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .cta {
+    padding: 40px 20px;
+  }
+
+  .cta h2 {
+    font-size: 24px;
+  }
+
+  .cta p {
+    font-size: 16px;
+  }
+}
   top: 0;
   left: 0;
   right: 0;

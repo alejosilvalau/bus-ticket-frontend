@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import "../styles/Login.css";
 
 type LoginProps = {
   isOpen: boolean;
