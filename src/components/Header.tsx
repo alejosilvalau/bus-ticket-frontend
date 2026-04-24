@@ -37,7 +37,7 @@ function Header() {
           <Link to="/">Home</Link>
         </div>
         <div style={{ marginTop: "4px" }} className="link">
-          <Link to="/buscar">Buscar</Link>
+          <Link to="/bookings">Bookings</Link>
         </div>
         <div style={{ marginTop: "4px" }} className="link">
           <Link to="/ofertas">Ofertas</Link>

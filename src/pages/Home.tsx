@@ -1,42 +1,55 @@
-import { Link } from "react-router-dom";
 import SearchBox from "../components/SearchBox";
 import "../styles/Home.css";
 import Sliderbar from "../components/Sliderbar";
+
 function Home() {
   return (
     <div className="home-container">
-      <Sliderbar />
-      <section className="hero">
-        <h1>Encuentra tu viaje perfecto</h1>
-        <p>Reserva autobuses con los mejores precios y comodidad</p>
-        <SearchBox />
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-copy">
+            <span className="hero-eyebrow">Book Bus Tickets</span>
+            <h1>Reserva tu viaje en autobús en segundos</h1>
+            <p>
+              Elige tu ruta, compara horarios y consigue tus boletos con los mejores precios.
+            </p>
+          </div>
+
+          <div className="hero-search-card">
+            <div className="travel-tabs">
+              <button className="tab active">Bus</button>
+            </div>
+            <SearchBox />
+          </div>
+        </div>
       </section>
+
+      <Sliderbar />
 
       <section className="benefits">
         <div className="benefit-card">
           <h3>🚌 Amplia Red</h3>
-          <p>Conectamos ciudades principales con rutas confiables</p>
+          <p>Conectamos las principales ciudades con rutas directas y convenientes.</p>
         </div>
         <div className="benefit-card">
           <h3>💰 Mejores Precios</h3>
-          <p>Compara y elige la mejor opción para tu presupuesto</p>
+          <p>Compara opciones y reserva con tarifas transparentes y promociones exclusivas.</p>
         </div>
         <div className="benefit-card">
-          <h3>🛡️ Seguro</h3>
-          <p>Viaja con confianza con nuestros servicios garantizados</p>
+          <h3>🛡️ Viaja Seguro</h3>
+          <p>Disfruta de viajes seguros con servicios confiables y asistencia dedicada.</p>
         </div>
         <div className="benefit-card">
           <h3>⭐ Opiniones</h3>
-          <p>Confían en nosotros miles de pasajeros satisfechos</p>
+          <p>Miles de viajeros satisfechos nos recomiendan por comodidad y precio.</p>
         </div>
       </section>
 
       <section className="cta">
-        <h2>¿Necesitas ayuda?</h2>
-        <p>Contáctanos para cualquier consulta sobre tus reservas</p>
-        <Link to="/buscar" className="cta-btn">
-          Buscar Ahora
-        </Link>
+        <h2>¿Listo para viajar?</h2>
+        <p>
+          Reserva ahora y empieza a planificar tu próxima aventura por carretera con BusTicket.
+        </p>
       </section>
     </div>
   );
