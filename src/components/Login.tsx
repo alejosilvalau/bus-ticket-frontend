@@ -5,7 +5,7 @@ import "../styles/Login.css";
 type LoginProps = {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string) => void;
+  onLogin: (email: string) => void;
 };
 
 function Login({ isOpen, onClose, onLogin }: LoginProps) {
@@ -21,7 +21,7 @@ function Login({ isOpen, onClose, onLogin }: LoginProps) {
       alert(`Registrado como ${name} (${email})`);
     } else {
       // Login logic
-      onLogin(email, password);
+      onLogin(email);
     }
     setEmail("");
     setPassword("");

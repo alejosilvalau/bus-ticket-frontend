@@ -7,6 +7,7 @@ import Offers from "./pages/Offers";
 import Login from "./pages/Login";
 import { useHideNavbar } from "./pages/Route";
 import "./styles/App.css";
+import Edit from "./pages/Edit";
 
 function AppContent() {
   const hideNavbar = useHideNavbar();
@@ -19,6 +20,8 @@ function AppContent() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/ofertas" element={<Offers />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/editar" element={<Edit />} />
+
       </Routes>
       <Footer />
     </>

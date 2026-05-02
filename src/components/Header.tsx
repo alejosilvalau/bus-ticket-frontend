@@ -9,7 +9,7 @@ function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("");
 
-  const handleLogin = (email: string, password: string) => {
+  const handleLogin = (email: string) => {
     setUserEmail(email);
     setIsAuthenticated(true);
     setIsLoginOpen(false);
@@ -21,11 +21,10 @@ function Header() {
   };
 
   return (
-    <div className="header" style={{ marginBottom: "50px", position: "fixed", width: "100%" }}>
-      <div className="logo" style={{ marginTop: "-40px" }}>
+    <div className="header">
+      <div className="logo">
         <Link to="/">
           <img
-            style={{ width: "130px", marginTop: "25px" }}
             src={LogoImg}
             alt="BusTicket logo"
           />
@@ -42,7 +41,12 @@ function Header() {
         <div style={{ marginTop: "4px" }} className="link">
           <Link to="/ofertas">Ofertas</Link>
         </div>
+        <div style={{ marginTop: "4px" }} className="link">
+          <Link to="/editar">Editar</Link>
+        </div>
+      </div>
 
+      <div className="auth-section">
         <div className="auth-buttons">
           {!isAuthenticated ? (
             <button
@@ -58,15 +62,6 @@ function Header() {
               <button
                 onClick={handleLogout}
                 className="logoutBtn"
-                style={{
-                  backgroundColor: "#c60001",
-                  marginTop: "3px",
-                  padding: "5px 10px",
-                  color: "white",
-                  borderRadius: "10px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
               >
                 Cerrar Sesión
               </button>

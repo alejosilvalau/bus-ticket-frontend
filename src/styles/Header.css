@@ -29,6 +29,7 @@
   width: 130px;
   height: auto;
   object-fit: contain;
+  margin-top: 10px;
 }
 
 .link-item {

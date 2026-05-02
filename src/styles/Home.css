@@ -1,7 +1,8 @@
 ﻿.home-container {
   background: #f3f6fb;
   min-height: 100vh;
-  padding: 90px 20px 40px;
+  padding: 70px 20px 40px;
+  margin-top: 0;
 }
 
 .hero-section {
