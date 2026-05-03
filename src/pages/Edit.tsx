@@ -17,7 +17,7 @@ interface Locality {
   id: string;
   name: string;
   province: string;
-  country: string;
+  postal_code: string;
 }
 
 interface Driver {
@@ -26,10 +26,16 @@ interface Driver {
   license: string;
   phone: string;
   email: string;
-  experience: string;
+}
+interface Bus {
+  id: string;
+  plate: string;
+  total_capacity: number;
+  bus_type: string;
+  is_active: boolean;
 }
 
-type TabType = "routes" | "localities" | "drivers";
+type TabType = "routes" | "localities" | "drivers" | "bus";
 
 function Edit() {
   const [activeTab, setActiveTab] = useState<TabType>("routes");
@@ -64,8 +70,8 @@ function Edit() {
 
   // ===== LOCALIDADES =====
   const [localities, setLocalities] = useState<Locality[]>([
-    { id: "1", name: "Buenos Aires", province: "Buenos Aires", country: "Argentina" },
-    { id: "2", name: "Córdoba", province: "Córdoba", country: "Argentina" },
+    { id: "1", name: "Buenos Aires", province: "Buenos Aires", postal_code: "1000" },
+    { id: "2", name: "Córdoba", province: "Córdoba", postal_code: "5000" },
   ]);
 
   const [localityEditingId, setLocalityEditingId] = useState<string | null>(null);
@@ -73,7 +79,7 @@ function Edit() {
     id: "",
     name: "",
     province: "",
-    country: "",
+    postal_code: "",
   });
 
   // ===== CONDUCTORES =====
@@ -84,7 +90,7 @@ function Edit() {
       license: "LIC123456",
       phone: "+54 911 2345678",
       email: "juan@busticket.com",
-      experience: "10 años",
+      
     },
   ]);
 
@@ -95,7 +101,7 @@ function Edit() {
     license: "",
     phone: "",
     email: "",
-    experience: "",
+   
   });
 
   // ===== HANDLERS RUTAS =====
@@ -176,7 +182,7 @@ function Edit() {
     } else {
       setLocalities([...localities, { ...localityFormData, id: Date.now().toString() }]);
     }
-    setLocalityFormData({ id: "", name: "", province: "", country: "" });
+    setLocalityFormData({ id: "", name: "", province: "", postal_code: "" });
   };
 
   const handleLocalityEdit = (locality: Locality) => {
@@ -190,7 +196,7 @@ function Edit() {
 
   const handleLocalityCancel = () => {
     setLocalityEditingId(null);
-    setLocalityFormData({ id: "", name: "", province: "", country: "" });
+    setLocalityFormData({ id: "", name: "", province: "", postal_code: "" });
   };
 
   // ===== HANDLERS CONDUCTORES =====
@@ -213,7 +219,7 @@ function Edit() {
     } else {
       setDrivers([...drivers, { ...driverFormData, id: Date.now().toString() }]);
     }
-    setDriverFormData({ id: "", name: "", license: "", phone: "", email: "", experience: "" });
+    setDriverFormData({ id: "", name: "", license: "", phone: "", email: ""});
   };
 
   const handleDriverEdit = (driver: Driver) => {
@@ -227,7 +233,7 @@ function Edit() {
 
   const handleDriverCancel = () => {
     setDriverEditingId(null);
-    setDriverFormData({ id: "", name: "", license: "", phone: "", email: "", experience: "" });
+    setDriverFormData({ id: "", name: "", license: "", phone: "", email: "" });
   };
 
   return (
@@ -256,6 +262,12 @@ function Edit() {
           onClick={() => setActiveTab("drivers")}
         >
           👤 Conductores
+        </button>
+        <button
+          className={`tab-button ${activeTab === "bus" ? "active" : ""}`}
+          onClick={() => setActiveTab("bus")}
+        >
+          🚍 Buses y Asientos
         </button>
       </div>
 
@@ -470,14 +482,14 @@ function Edit() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="country">País *</label>
+                <label htmlFor="postal_code">Código Postal *</label>
                 <input
                   type="text"
-                  id="country"
-                  name="country"
-                  value={localityFormData.country}
+                  id="postal_code"
+                  name="postal_code"
+                  value={localityFormData.postal_code}
                   onChange={handleLocalityInputChange}
-                  placeholder="Ej: Argentina"
+                  placeholder="Ej: 1000"
                   required
                 />
               </div>
@@ -512,8 +524,8 @@ function Edit() {
                         <span className="detail-value">{locality.province}</span>
                       </div>
                       <div className="detail-item">
-                        <span className="detail-label">País:</span>
-                        <span className="detail-value">{locality.country}</span>
+                        <span className="detail-label">Código Postal:</span>
+                        <span className="detail-value">{locality.postal_code}</span>
                       </div>
                     </div>
                     <div className="item-actions">
@@ -563,18 +575,7 @@ function Edit() {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="experience">Experiencia *</label>
-                <input
-                  type="text"
-                  id="experience"
-                  name="experience"
-                  value={driverFormData.experience}
-                  onChange={handleDriverInputChange}
-                  placeholder="Ej: 10 años"
-                  required
-                />
-              </div>
+              
             </div>
 
             <div className="form-row">
@@ -633,10 +634,7 @@ function Edit() {
                         <span className="detail-label">Licencia:</span>
                         <span className="detail-value">{driver.license}</span>
                       </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Experiencia:</span>
-                        <span className="detail-value">{driver.experience}</span>
-                      </div>
+                    
                       <div className="detail-item">
                         <span className="detail-label">Teléfono:</span>
                         <span className="detail-value">{driver.phone}</span>
@@ -661,6 +659,15 @@ function Edit() {
           </div>
         </div>
       )}
+      {/* ===== TAB Bus y Asientos ===== */}
+      {activeTab === "bus" && (
+        <div className="tab-content">
+          <h2>Gestión de Buses y Asientos</h2>
+          <p>Próximamente...</p>
+        </div>
+      )}
+
+
     </div>
   );
 }

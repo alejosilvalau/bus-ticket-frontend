@@ -21,7 +21,10 @@ function AppContent() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/ofertas" element={<Offers />} />
         <Route path="/login" element={<LoginPage />} />
+      
         <Route path="/editar" element={<Edit />} />
+      
+
       </Routes>
       <Footer />
     </>

@@ -18,7 +18,10 @@ export default function Header() {
         <div style={{ marginTop: "4px" }} className="link"><Link to="/">Home</Link></div>
         <div style={{ marginTop: "4px" }} className="link"><Link to="/bookings">Bookings</Link></div>
         <div style={{ marginTop: "4px" }} className="link"><Link to="/ofertas">Ofertas</Link></div>
-        <div style={{ marginTop: "4px" }} className="link"><Link to="/editar">Editar</Link></div>
+        {/*por ahora solo valida que estes autenticado*/}
+       {isAuthenticated && /*user?.is_admin && */(
+          <div style={{ marginTop: "4px" }} className="link"><Link to="/editar">Editar</Link></div>
+        )}
       </div>
       <div className="auth-section">
         <div className="auth-buttons">
