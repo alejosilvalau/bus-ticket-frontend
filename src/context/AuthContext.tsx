@@ -1,91 +1,89 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
+import type { UserDTO } from '@/types/auth';
+import { authService } from '@/services/auth.service';
 
-const SESSION_DURATION = 30 * 60 * 1000; // 30 minutos en ms
-
-type AuthContextType = {
+interface AuthContextType {
   isAuthenticated: boolean;
-  userEmail: string;
-  login: (email: string) => void;
-  logout: () => void;
-  isLoginOpen: boolean;
-  openLogin: () => void;
-  closeLogin: () => void;
-};
+  isAdmin: boolean;
+  user: UserDTO | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (user: UserDTO) => void;
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+function parseToken(token: string): { sub: string; email: string; isAdmin: boolean } | null {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
+    return { sub: decoded.sub, email: decoded.email, isAdmin: decoded.isAdmin };
+  } catch {
+    return null;
+  }
+}
 
-  // Al cargar la app, verificar si hay sesión guardada y si no expiró
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("userEmail");
-    const loginTime = localStorage.getItem("loginTime");
-
-    if (savedEmail && loginTime) {
-      const elapsed = Date.now() - parseInt(loginTime);
-      if (elapsed < SESSION_DURATION) {
-        setUserEmail(savedEmail);
-        setIsAuthenticated(true);
-      } else {
-        // Ya expiró, limpiar
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("loginTime");
-      }
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<UserDTO | null>(() => {
+    const saved = localStorage.getItem('user');
+    const savedToken = localStorage.getItem('token');
+    if (saved && savedToken && parseToken(savedToken)) {
+      return JSON.parse(saved);
     }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return null;
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    const saved = localStorage.getItem('token');
+    return saved && parseToken(saved) ? saved : null;
+  });
+
+  const isAuthenticated = !!token && !!user;
+  const isAdmin = user?.isAdmin ?? false;
+
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await authService.login({ email, password });
+    const { token: newToken, user: userData } = res.data.data;
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(newToken);
+    setUser(userData);
   }, []);
 
-  // Verificar expiración cada minuto mientras la app está abierta
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  const register = useCallback(async (data: { firstName: string; lastName: string; email: string; password: string }) => {
+    await authService.register(data);
+  }, []);
 
-    const interval = setInterval(() => {
-      const loginTime = localStorage.getItem("loginTime");
-      if (!loginTime) return;
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // ignore logout errors
+    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+  }, []);
 
-      const elapsed = Date.now() - parseInt(loginTime);
-      if (elapsed >= SESSION_DURATION) {
-        logout();
-      }
-    }, 60 * 1000); // chequea cada 1 minuto
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
-
-  const login = (email: string) => {
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("loginTime", Date.now().toString());
-    setUserEmail(email);
-    setIsAuthenticated(true);
-    setIsLoginOpen(false);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("loginTime");
-    setIsAuthenticated(false);
-    setUserEmail("");
-  };
+  const updateUser = useCallback((updatedUser: UserDTO) => {
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      userEmail,
-      login,
-      logout,
-      isLoginOpen,
-      openLogin: () => setIsLoginOpen(true),
-      closeLogin: () => setIsLoginOpen(false),
-    }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 }

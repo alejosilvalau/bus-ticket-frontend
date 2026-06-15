@@ -1,107 +1,88 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import "../styles/Login.css";
-import { useLocation } from "react-router-dom";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Mail, Lock, Bus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
 
+const schema = z.object({
+  email: z.email('Email inválido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
+});
 
+type FormData = z.infer<typeof schema>;
 
-export default function LoginPage() {
-  const location = useLocation();
-  const [isSignUp, setIsSignUp] = useState(location.state?.signUp ?? false);
+export default function Login() {
   const { login } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSignUp) {
-      if (password !== password2) {
-        setError("Las contraseñas no coinciden");
-        return;
-      }
-      alert(`¡Bienvenido, ${name}!`);
-      navigate("/");
-    } else {
-      if (email === "test@test.com" && password === "1234") {
-        login(email);
-        navigate("/");
-      } else {
-        setError("Email o contraseña incorrectos");
-      }
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+    try {
+      await login(data.email, data.password);
+      showToast('¡Bienvenido!', 'success');
+      navigate('/');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Credenciales incorrectas';
+      showToast(msg, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h1>{isSignUp ? "Crear cuenta" : "Iniciar sesión"}</h1>
-        <p className="login-subtitle">
-          {isSignUp ? "Completá tus datos para registrarte" : "Ingresá a tu cuenta de BusTicket"}
-        </p>
-        <form onSubmit={handleSubmit} className="login-form">
-          {isSignUp && (
-            <div className="field">
-              <label>Nombre completo</label>
-              <input
-                type="text"
-                placeholder="Juan Pérez"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-          )}
-          <div className="field">
-            <label>Email</label>
-            <input
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <Bus className="mx-auto h-12 w-12 text-[#c60001]" />
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">Iniciar Sesión</h1>
+          <p className="mt-1 text-sm text-gray-600">Accedé a tu cuenta para reservar viajes</p>
+        </div>
+
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              label="Email"
               type="email"
-              placeholder="nombre@email.com"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(""); }}
-              required
+              icon={<Mail className="h-4 w-4" />}
+              placeholder="tu@email.com"
+              error={errors.email?.message}
+              {...register('email')}
             />
-          </div>
-            
-           <div className="field">
-            <label>Contraseña</label>
-            <input
+            <Input
+              label="Contraseña"
               type="password"
+              icon={<Lock className="h-4 w-4" />}
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              required
+              error={errors.password?.message}
+              {...register('password')}
             />
-          </div>
-          {isSignUp && (
-            <div className="field">
-              <label>Confirmar contraseña</label>
-              <input type="password"
-                placeholder="••••••••"
-                value={password2}
-                onChange={(e) => { setPassword2(e.target.value); setError(""); }}
-              required
-            />
+            <div className="flex items-center justify-end">
+              <Link to="/recuperar-contrasena" className="text-sm text-[#c60001] hover:underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
             </div>
-          )}
-          {error && <p className="login-error">{error}</p>}
-          <button type="submit" className="submit-btn">
-            {isSignUp ? "Registrarme" : "Ingresar"}
-          </button>
-        </form>
-        <p className="toggle-text">
-          {isSignUp ? "¿Ya tenés cuenta?" : "¿No tenés cuenta?"}{" "}
-          <button
-            type="button"
-            className="toggle-btn"
-            onClick={() => { setIsSignUp(!isSignUp); setError(""); }}
-          >
-            {isSignUp ? "Iniciá sesión" : "Registrate"}
-          </button>
+            <Button type="submit" loading={loading} className="w-full">
+              Iniciar Sesión
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          ¿No tenés cuenta?{' '}
+          <Link to="/registrar" className="font-medium text-[#c60001] hover:underline">
+            Registrate
+          </Link>
         </p>
       </div>
     </div>
