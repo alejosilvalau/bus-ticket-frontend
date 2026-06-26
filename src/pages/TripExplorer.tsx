@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, ArrowRight, Clock } from 'lucide-react';
-import { useAvailableTripSearch } from '@/hooks/queries/useTrips';
+import { useAvailableTrips, useAvailableTripSearch } from '@/hooks/queries/useTrips';
 import { useLocations } from '@/hooks/queries/useLocations';
 import { useSeatTypes } from '@/hooks/queries/useSeatTypes';
+import { useBuses } from '@/hooks/queries/useBuses';
 import type { SearchTrip } from '@/types/trip';
 import Spinner from '@/components/ui/Spinner';
 import Pagination from '@/components/ui/Pagination';
@@ -14,10 +15,31 @@ const timeSlots = [
   { label: 'Noche', value: 'night', icon: '🌙' },
 ];
 
+const BS_AS_TIMEZONE = 'America/Argentina/Buenos_Aires';
+
+function getBuenosAiresDateString(date = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: BS_AS_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
+function buildBsAsDateTime(baseDate: string, hour: string, minute = '00', second = '00') {
+  const [year, month, day] = baseDate.split('-').map(Number);
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}-03:00`;
+}
+
 function parseDate(dateStr: string) {
   try {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Intl.DateTimeFormat('es-AR', {
+      timeZone: BS_AS_TIMEZONE,
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(d);
   } catch {
     return dateStr;
   }
@@ -26,7 +48,26 @@ function parseDate(dateStr: string) {
 function parseTime(dateStr: string) {
   try {
     const d = new Date(dateStr);
-    return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    return new Intl.DateTimeFormat('es-AR', {
+      timeZone: BS_AS_TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(d);
+  } catch {
+    return '';
+  }
+}
+
+function parseUtcTime(dateStr: string) {
+  try {
+    const d = new Date(dateStr);
+    return new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC',
+    }).format(d);
   } catch {
     return '';
   }
@@ -43,17 +84,35 @@ function formatDuration(dep: string, arr: string) {
   }
 }
 
+function getTimeSlotForTrip(dateStr: string) {
+  try {
+    const d = new Date(dateStr);
+    const hour = new Intl.DateTimeFormat('en-GB', {
+      timeZone: BS_AS_TIMEZONE,
+      hour: 'numeric',
+      hour12: false,
+    }).format(d);
+    const hourNumber = Number(hour);
+    if (hourNumber >= 0 && hourNumber < 12) return 'morning';
+    if (hourNumber >= 12 && hourNumber < 18) return 'afternoon';
+    return 'night';
+  } catch {
+    return '';
+  }
+}
+
 export default function TripExplorer() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [page, setPage] = useState(0);
 
+  const [departureDate, setDepartureDate] = useState<string>(searchParams.get('date') || '');
   const [filters, setFilters] = useState<SearchTrip>({
     locationOriginId: searchParams.get('origin') ? Number(searchParams.get('origin')) : undefined,
     locationDestinationId: searchParams.get('destination') ? Number(searchParams.get('destination')) : undefined,
-    departureDate: searchParams.get('date') || undefined,
     startBasePrice: undefined,
     endBasePrice: undefined,
+    busId: undefined,
     seatTypeId: undefined,
   });
 
@@ -66,34 +125,63 @@ export default function TripExplorer() {
   const { data: seatTypesData } = useSeatTypes();
   const seatTypes = seatTypesData?.data?.data?.content || [];
 
+  const { data: busesData } = useBuses();
+  const buses = busesData?.data?.data?.content || [];
+
   const searchFilters = useMemo<SearchTrip>(() => {
     const f: SearchTrip = { ...filters };
-    if (timeFilter === 'morning') {
-      f.departureDate = filters.departureDate
-        ? `${filters.departureDate}T06:00:00Z`
-        : '2020-01-01T06:00:00Z';
-    } else if (timeFilter === 'afternoon') {
-      f.departureDate = filters.departureDate
-        ? `${filters.departureDate}T12:00:00Z`
-        : '2020-01-01T12:00:00Z';
-    } else if (timeFilter === 'night') {
-      f.departureDate = filters.departureDate
-        ? `${filters.departureDate}T18:00:00Z`
-        : '2020-01-01T18:00:00Z';
-    }
-    return f;
-  }, [filters, timeFilter]);
+    const effectiveDate = departureDate || getBuenosAiresDateString();
 
-  const { data, isLoading } = useAvailableTripSearch(searchFilters, page, 10);
+    if (timeFilter) {
+      if (timeFilter === 'morning') {
+        f.startDepartureDate = buildBsAsDateTime(effectiveDate, '00');
+        f.endDepartureDate = buildBsAsDateTime(effectiveDate, '11', '59', '59');
+      } else if (timeFilter === 'afternoon') {
+        f.startDepartureDate = buildBsAsDateTime(effectiveDate, '12');
+        f.endDepartureDate = buildBsAsDateTime(effectiveDate, '17', '59', '59');
+      } else if (timeFilter === 'night') {
+        f.startDepartureDate = buildBsAsDateTime(effectiveDate, '18');
+        f.endDepartureDate = buildBsAsDateTime(effectiveDate, '23', '59', '59');
+      }
+    } else if (departureDate) {
+      f.startDepartureDate = buildBsAsDateTime(effectiveDate, '00');
+      f.endDepartureDate = buildBsAsDateTime(effectiveDate, '23', '59', '59');
+    }
+
+    return f;
+  }, [filters, departureDate, timeFilter]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      departureDate !== '' ||
+      timeFilter !== '' ||
+      filters.startBasePrice !== undefined ||
+      filters.endBasePrice !== undefined ||
+      filters.busId !== undefined ||
+      filters.locationOriginId !== undefined ||
+      filters.locationDestinationId !== undefined ||
+      filters.seatTypeId !== undefined
+    );
+  }, [departureDate, timeFilter, filters]);
+
+  const defaultTripsQuery = useAvailableTrips(page, 10);
+  const searchTripsQuery = useAvailableTripSearch(searchFilters, page, 10);
+
+  const query = timeFilter && !departureDate ? defaultTripsQuery : hasActiveFilters ? searchTripsQuery : defaultTripsQuery;
+  const { data, isLoading, isError, error } = query;
+  const errorMessage = isError ? (error as { message?: string })?.message || 'Error al cargar viajes' : undefined;
 
   const trips = useMemo(() => {
     const content = data?.data?.data?.content || [];
-    const sorted = [...content];
+    const filtered = timeFilter && !departureDate
+      ? content.filter((trip) => getTimeSlotForTrip(trip.departureDate) === timeFilter)
+      : content;
+    const sorted = [...filtered];
     if (sortBy === 'price-asc') sorted.sort((a, b) => a.basePrice - b.basePrice);
     else if (sortBy === 'price-desc') sorted.sort((a, b) => b.basePrice - a.basePrice);
     else sorted.sort((a, b) => new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime());
     return sorted;
-  }, [data, sortBy]);
+  }, [data, sortBy, departureDate, timeFilter]);
 
   const totalPages = data?.data?.data?.totalPages || 0;
 
@@ -136,11 +224,25 @@ export default function TripExplorer() {
               </div>
 
               <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Bus</label>
+                <select
+                  value={filters.busId || ''}
+                  onChange={(e) => setFilters({ ...filters, busId: e.target.value ? Number(e.target.value) : undefined })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
+                >
+                  <option value="">Todos</option>
+                  {buses.map((bus) => (
+                    <option key={bus.id} value={bus.id}>{bus.plateNumber}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">Fecha</label>
                 <input
                   type="date"
-                  value={filters.departureDate || ''}
-                  onChange={(e) => setFilters({ ...filters, departureDate: e.target.value || undefined })}
+                  value={departureDate}
+                  onChange={(e) => setDepartureDate(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
                 />
               </div>
@@ -245,6 +347,9 @@ export default function TripExplorer() {
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
                           {parseTime(trip.departureDate)} → {parseTime(trip.arrivalDate)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          UTC {parseUtcTime(trip.departureDate)} → {parseUtcTime(trip.arrivalDate)}
                         </span>
                         <span>{formatDuration(trip.departureDate, trip.arrivalDate)}</span>
                         <span>{parseDate(trip.departureDate)}</span>

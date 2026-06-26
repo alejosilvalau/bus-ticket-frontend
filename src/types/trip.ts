@@ -38,8 +38,10 @@ export interface UpdateTrip {
 }
 
 export interface SearchTrip {
-  departureDate?: string;
-  arrivalDate?: string;
+  startDepartureDate?: string;
+  endDepartureDate?: string;
+  startArrivalDate?: string;
+  endArrivalDate?: string;
   startBasePrice?: number;
   endBasePrice?: number;
   busId?: number;
