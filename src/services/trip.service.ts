@@ -25,7 +25,7 @@ export const tripService = {
   },
 
   getSeats(id: number) {
-    return api.get<ApiResponse<SeatAvailability[]>>(`/journeys/catalog/trips/${id}/seats`);
+    return api.get<ApiResponse<SeatAvailability[]>>(`/journeys/catalog/trips/${id}/available/seats`);
   },
 
   create(data: CreateTrip) {

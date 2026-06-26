@@ -1,6 +1,6 @@
 import api from './api';
 import type { ApiResponse, PageResponse } from '@/types/api';
-import type { TicketFull, CreateTicket, UpdateTicket, SearchTicket, FinalPriceRequest } from '@/types/ticket';
+import type { TicketFull, CreateTicket, UpdateTicket, SearchTicket, FinalPriceRequest, TicketToken } from '@/types/ticket';
 
 export const ticketService = {
   list(page = 0, size = 20) {
@@ -13,6 +13,10 @@ export const ticketService = {
 
   getById(id: number) {
     return api.get<ApiResponse<TicketFull>>(`/booking/status/tickets/${id}`);
+  },
+
+  getToken(id: number) {
+    return api.get<ApiResponse<TicketToken>>(`/booking/status/tickets/${id}/token`);
   },
 
   create(data: CreateTicket) {

@@ -12,7 +12,7 @@ export const authService = {
   },
 
   register(data: CreateUser) {
-    return api.post<ApiResponse<UserDTO>>('/identity/register/', data);
+    return api.post<ApiResponse<UserDTO>>('/identity/register', data);
   },
 
   changePassword(data: ChangePassword) {

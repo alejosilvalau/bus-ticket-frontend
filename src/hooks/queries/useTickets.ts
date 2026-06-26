@@ -9,9 +9,10 @@ export function useTickets(page = 0, size = 20) {
   });
 }
 
-export function useTicketSearch(filters: SearchTicket, page = 0, size = 20) {
+export function useTicketSearch(filters: SearchTicket, page = 0, size = 20, enabled = true) {
   return useQuery({
     queryKey: ['tickets', 'search', filters, page, size],
     queryFn: () => ticketService.search(filters, page, size),
+    enabled,
   });
 }

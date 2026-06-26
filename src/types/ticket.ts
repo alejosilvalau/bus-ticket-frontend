@@ -16,6 +16,19 @@ export interface TicketFull extends Ticket {
   seat: Seat;
 }
 
+export interface TicketToken {
+  busPlateNumber: string;
+  driverName: string;
+  originCityName: string;
+  destinationCityName: string;
+  tripDepartureDate: string;
+  tripArrivalDate: string;
+  seatLetter: string;
+  seatNumber: number;
+  seatTypeName: string;
+  bookingTime: string;
+}
+
 export interface CreateTicket {
   userId: number;
   tripId: number;

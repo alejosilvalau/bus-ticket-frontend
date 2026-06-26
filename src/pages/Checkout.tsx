@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTrip, useTripSeats } from '@/hooks/queries/useTrips';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -22,6 +23,7 @@ function parseDate(dateStr: string) {
 export default function Checkout() {
   const { tripId } = useParams<{ tripId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -42,16 +44,54 @@ export default function Checkout() {
     if (!trip || !selectedSeat || !user) return;
     setBooking(true);
     try {
-      await ticketService.create({
+      const response = await ticketService.create({
         userId: user.id,
         tripId: trip.id,
         seatId: selectedSeat.id,
       });
+      const createdTicket = response.data.data;
+
+      queryClient.setQueriesData(
+        { queryKey: ['tickets'] },
+        (oldData: unknown) => {
+          if (!oldData || typeof oldData !== 'object') return oldData;
+
+          const responseData = oldData as {
+            data?: {
+              data?: {
+                content?: Array<{ id: number }>;
+                totalElements?: number;
+              };
+            };
+          };
+
+          const pageData = responseData.data?.data;
+          if (!pageData?.content) return oldData;
+
+          const alreadyExists = pageData.content.some((ticket) => ticket.id === createdTicket.id);
+          if (alreadyExists) return oldData;
+
+          return {
+            ...responseData,
+            data: {
+              ...responseData.data,
+              data: {
+                ...pageData,
+                content: [createdTicket, ...pageData.content],
+                totalElements: (pageData.totalElements ?? pageData.content.length) + 1,
+              },
+            },
+          };
+        },
+      );
+
       showToast('¡Ticket comprado con éxito!', 'success');
-      navigate('/perfil');
+      queryClient.invalidateQueries({ queryKey: ['trip', trip.id, 'seats'] });
+      navigate('/perfil', { state: { activeTab: 'tickets' } });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al comprar ticket';
       showToast(msg, 'error');
+      queryClient.invalidateQueries({ queryKey: ['trip', trip?.id, 'seats'] });
     } finally {
       setBooking(false);
     }
