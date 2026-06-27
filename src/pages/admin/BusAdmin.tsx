@@ -18,7 +18,7 @@ import type { Bus } from '@/types/bus';
 const schema = z.object({
   plateNumber: z.string().min(1, 'Requerido').max(20),
   totalCapacity: z.number().min(1, 'Mínimo 1'),
-  isActive: z.boolean().optional(),
+  isActive: z.boolean()
 });
 
 type FormData = z.infer<typeof schema>;
@@ -39,7 +39,7 @@ export default function BusAdmin() {
     resolver: zodResolver(schema),
   });
 
-  const openCreate = () => { setEditing(null); reset({ plateNumber: '', totalCapacity: 40 }); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); reset({ plateNumber: '', totalCapacity: 40, isActive: true }); setModalOpen(true); };
   const openEdit = (b: Bus) => { setEditing(b); reset({ plateNumber: b.plateNumber, totalCapacity: b.totalCapacity, isActive: b.isActive }); setModalOpen(true); };
 
   const onSubmit = async (data: FormData) => {

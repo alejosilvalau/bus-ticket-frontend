@@ -20,7 +20,7 @@ const schema = z.object({
   lastName: z.string().min(1, 'Requerido').max(100),
   licenseNumber: z.string().min(1, 'Requerido').max(50),
   phoneNumber: z.string().min(1, 'Requerido').regex(/^\+?[0-9\s-]{7,20}$/, 'Teléfono inválido'),
-  isActive: z.boolean().optional(),
+  isActive: z.boolean(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -41,7 +41,7 @@ export default function DriverAdmin() {
     resolver: zodResolver(schema),
   });
 
-  const openCreate = () => { setEditing(null); reset({ firstName: '', lastName: '', licenseNumber: '', phoneNumber: '' }); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); reset({ firstName: '', lastName: '', licenseNumber: '', phoneNumber: '', isActive: true }); setModalOpen(true); };
   const openEdit = (d: Driver) => { setEditing(d); reset({ firstName: d.firstName, lastName: d.lastName, licenseNumber: d.licenseNumber, phoneNumber: d.phoneNumber, isActive: d.isActive }); setModalOpen(true); };
 
   const onSubmit = async (data: FormData) => {

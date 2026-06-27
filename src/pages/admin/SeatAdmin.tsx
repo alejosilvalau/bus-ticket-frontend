@@ -22,7 +22,7 @@ const schema = z.object({
   number: z.number().min(1, 'Mínimo 1'),
   busId: z.number().min(1, 'Requerido'),
   seatTypeId: z.number().min(1, 'Requerido'),
-  isActive: z.boolean().optional(),
+  isActive: z.boolean(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -48,8 +48,8 @@ export default function SeatAdmin() {
     resolver: zodResolver(schema),
   });
 
-  const openCreate = () => { setEditing(null); reset({ letter: '', number: 1, busId: 0, seatTypeId: 0 }); setModalOpen(true); };
-  const openEdit = (s: SeatFull) => { setEditing(s); reset({ letter: s.letter, number: s.number, busId: s.bus.id, seatTypeId: s.seatType.id }); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); reset({ letter: '', number: 1, busId: 0, seatTypeId: 0, isActive: true }); setModalOpen(true); };
+  const openEdit = (s: SeatFull) => { setEditing(s); reset({ letter: s.letter, number: s.number, busId: s.bus.id, seatTypeId: s.seatType.id, isActive: s.isActive }); setModalOpen(true); };
 
   const onSubmit = async (data: FormData) => {
     try {
