@@ -59,19 +59,7 @@ function parseTime(dateStr: string) {
   }
 }
 
-function parseUtcTime(dateStr: string) {
-  try {
-    const d = new Date(dateStr);
-    return new Intl.DateTimeFormat('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'UTC',
-    }).format(d);
-  } catch {
-    return '';
-  }
-}
+
 
 function formatDuration(dep: string, arr: string) {
   try {
@@ -347,9 +335,6 @@ export default function TripExplorer() {
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
                           {parseTime(trip.departureDate)} → {parseTime(trip.arrivalDate)}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          UTC {parseUtcTime(trip.departureDate)} → {parseUtcTime(trip.arrivalDate)}
                         </span>
                         <span>{formatDuration(trip.departureDate, trip.arrivalDate)}</span>
                         <span>{parseDate(trip.departureDate)}</span>
