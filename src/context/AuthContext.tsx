@@ -15,11 +15,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function parseToken(token: string): { sub: string; email: string; isAdmin: boolean } | null {
+function parseToken(token: string): { sub: string; email: string; isAdmin: boolean; exp: number } | null {
   try {
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload));
-    return { sub: decoded.sub, email: decoded.email, isAdmin: decoded.isAdmin };
+    if (decoded.exp * 1000 < Date.now()) return null;
+    return { sub: decoded.sub, email: decoded.email, isAdmin: decoded.isAdmin, exp: decoded.exp };
   } catch {
     return null;
   }
