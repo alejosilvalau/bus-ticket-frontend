@@ -21,43 +21,41 @@ export default function SearchBox() {
     navigate(`/viajes?${params.toString()}`);
   };
 
+  const inputClass =
+    'w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#c60001] focus:outline-none focus:ring-1 focus:ring-[#c60001]';
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
         <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <select
-          value={originId}
-          onChange={(e) => setOriginId(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#c60001] focus:outline-none focus:ring-1 focus:ring-[#c60001]"
-        >
+        <select value={originId} onChange={(e) => setOriginId(e.target.value)} className={inputClass}>
           <option value="">Origen</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
           ))}
         </select>
       </div>
+
       <div className="relative flex-1">
         <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <select
-          value={destinationId}
-          onChange={(e) => setDestinationId(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#c60001] focus:outline-none focus:ring-1 focus:ring-[#c60001]"
-        >
+        <select value={destinationId} onChange={(e) => setDestinationId(e.target.value)} className={inputClass}>
           <option value="">Destino</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
           ))}
         </select>
       </div>
+
       <div className="relative flex-1">
         <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#c60001] focus:outline-none focus:ring-1 focus:ring-[#c60001]"
+          className={inputClass}
         />
       </div>
+
       <button
         type="submit"
         className="flex items-center justify-center gap-2 rounded-lg bg-[#c60001] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#a50001] transition-colors sm:w-auto"
