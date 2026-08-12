@@ -156,8 +156,7 @@ export default function TripExplorer() {
   const searchTripsQuery = useAvailableTripSearch(searchFilters, page, 10);
 
   const query = timeFilter && !departureDate ? defaultTripsQuery : hasActiveFilters ? searchTripsQuery : defaultTripsQuery;
-  const { data, isLoading, isError, error } = query;
-  const errorMessage = isError ? (error as { message?: string })?.message || 'Error al cargar viajes' : undefined;
+  const { data, isLoading } = query;
 
   const trips = useMemo(() => {
     const content = data?.data?.data?.content || [];

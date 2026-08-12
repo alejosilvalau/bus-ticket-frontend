@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import QRCode from 'react-qr-code';
 import { useLocation } from 'react-router-dom';
 import * as QRCodeGenerator from 'qrcode';
+import { jsPDF } from 'jspdf';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { profileService } from '@/services/profile.service';
@@ -51,13 +53,13 @@ function parseDate(dateStr: string) {
   }
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+const TicketQRCode = QRCode as unknown as FC<{ value: string; size: number }>;
+
+function addTicketText(doc: jsPDF, label: string, value: string, x: number, y: number) {
+  doc.setFont('helvetica', 'bold');
+  doc.text(label, x, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(value, x + 36, y);
 }
 
 function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticket: TicketFull) => Promise<void> }) {
@@ -69,6 +71,7 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
   const token = tokenQuery.data?.data?.data;
   const qrValue = token ? JSON.stringify(token) : `ticket:${ticket.id}`;
   const routeLabel = token ? `${token.originCityName} → ${token.destinationCityName}` : `Viaje #${ticket.trip.id}`;
+  const pdfRouteLabel = token ? `${token.originCityName} - ${token.destinationCityName}` : `Viaje #${ticket.trip.id}`;
   const seatLabel = token ? `${token.seatLetter}${token.seatNumber} · ${token.seatTypeName}` : `${ticket.seat.letter}${ticket.seat.number}`;
   const departureLabel = token ? parseDate(token.tripDepartureDate) : parseDate(ticket.trip.departureDate);
 
@@ -81,58 +84,53 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
       errorCorrectionLevel: 'M',
     });
 
-    const html = `<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ticket ${ticket.id}</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 24px; background: #f6f7fb; color: #111827; }
-    .card { max-width: 720px; margin: 0 auto; background: white; border: 1px solid #e5e7eb; border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
-    .title { margin: 0; font-size: 24px; font-weight: 700; }
-    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: ${ticket.isCancelled ? '#fee2e2' : '#dcfce7'}; color: ${ticket.isCancelled ? '#b91c1c' : '#166534'}; }
-    .grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 24px; align-items: center; }
-    .meta { display: grid; gap: 10px; font-size: 14px; }
-    .meta strong { display: inline-block; min-width: 110px; }
-    .qr { text-align: center; }
-    .qr img { width: 240px; height: 240px; border: 1px solid #e5e7eb; border-radius: 16px; padding: 12px; background: white; }
-    .muted { color: #6b7280; font-size: 12px; margin-top: 8px; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <div>
-        <h1 class="title">Ticket #${ticket.id}</h1>
-        <div class="muted">${escapeHtml(routeLabel)}</div>
-      </div>
-      <div class="badge">${ticket.isCancelled ? 'Cancelado' : 'Activo'}</div>
-    </div>
-    <div class="grid">
-      <div class="meta">
-        <div><strong>Salida:</strong> ${escapeHtml(departureLabel)}</div>
-        <div><strong>Asiento:</strong> ${escapeHtml(seatLabel)}</div>
-        <div><strong>Reserva:</strong> ${escapeHtml(parseDate(ticket.bookingTime))}</div>
-        <div><strong>Precio:</strong> $${ticket.finalPrice.toLocaleString('es-AR')}</div>
-      </div>
-      <div class="qr">
-        <img src="${qrDataUrl}" alt="QR del ticket" />
-        <div class="muted">Presentá este código al abordar</div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ticket-${ticket.id}.html`;
-    link.click();
-    URL.revokeObjectURL(url);
+    doc.setFillColor(246, 247, 251);
+    doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), 'F');
+
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(229, 231, 235);
+    doc.roundedRect(12, 12, pageWidth - 24, 273, 6, 6, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(17, 24, 39);
+    doc.text(`Ticket #${ticket.id}`, 20, 28);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(107, 114, 128);
+    doc.text(pdfRouteLabel, 20, 36);
+
+    const badgeLabel = ticket.isCancelled ? 'Cancelado' : 'Activo';
+    const badgeFill = ticket.isCancelled ? [254, 226, 226] : [220, 252, 231];
+    const badgeText = ticket.isCancelled ? [185, 28, 28] : [22, 101, 52];
+    doc.setFillColor(badgeFill[0], badgeFill[1], badgeFill[2]);
+    doc.roundedRect(pageWidth - 52, 20, 32, 10, 5, 5, 'F');
+    doc.setFontSize(9);
+    doc.setTextColor(badgeText[0], badgeText[1], badgeText[2]);
+    doc.text(badgeLabel, pageWidth - 36, 26, { align: 'center' });
+
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 46, pageWidth - 20, 46);
+
+    addTicketText(doc, 'Salida:', departureLabel, 20, 62);
+    addTicketText(doc, 'Asiento:', seatLabel, 20, 74);
+    addTicketText(doc, 'Reserva:', parseDate(ticket.bookingTime), 20, 86);
+    addTicketText(doc, 'Precio:', `$${ticket.finalPrice.toLocaleString('es-AR')}`, 20, 98);
+
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(229, 231, 235);
+    doc.roundedRect(122, 58, 72, 72, 4, 4, 'FD');
+    doc.addImage(qrDataUrl, 'PNG', 127, 63, 62, 62);
+
+    doc.setFontSize(10);
+    doc.setTextColor(107, 114, 128);
+    doc.text('Presentá este código al abordar', 158, 139, { align: 'center' });
+
+    doc.save(`ticket-${ticket.id}.pdf`);
   };
 
   return (
@@ -164,7 +162,7 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
         <div className="flex flex-col items-center gap-3">
           <div className="rounded-xl border border-gray-200 bg-white p-3">
             {token ? (
-              <QRCode value={qrValue} size={128} />
+              <TicketQRCode value={qrValue} size={128} />
             ) : (
               <div className="flex h-32 w-32 items-center justify-center text-xs text-gray-400">
                 Cargando QR...
