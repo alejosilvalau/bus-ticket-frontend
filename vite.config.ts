@@ -18,6 +18,8 @@ export default defineConfig({
   },
   server: isDev
     ? {
+        port: 5173,
+        strictPort: true,
         proxy: {
           '/api': {
             target: process.env.VITE_API_DEV_TARGET || 'http://localhost:8080',
