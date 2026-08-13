@@ -229,7 +229,10 @@ export default function TripExplorer() {
                 <input
                   type="date"
                   value={departureDate}
-                  onChange={(e) => setDepartureDate(e.target.value)}
+                  onChange={(e) => {
+                    setDepartureDate(e.target.value);
+                    if (!e.target.value) setTimeFilter('');
+                  }}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
                 />
               </div>
@@ -277,17 +280,23 @@ export default function TripExplorer() {
                   {timeSlots.map((slot) => (
                     <button
                       key={slot.value}
+                      disabled={!departureDate}
                       onClick={() => setTimeFilter(timeFilter === slot.value ? '' : slot.value)}
                       className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
-                        timeFilter === slot.value
-                          ? 'bg-[#c60001] text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        !departureDate
+                          ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-60'
+                          : timeFilter === slot.value
+                            ? 'bg-[#c60001] text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
                       {slot.icon} {slot.label}
                     </button>
                   ))}
                 </div>
+                {!departureDate && (
+                  <p className="mt-1 text-xs text-gray-400">Seleccioná una fecha para activar la hora de salida</p>
+                )}
               </div>
             </div>
           </div>
