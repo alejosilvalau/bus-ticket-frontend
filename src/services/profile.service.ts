@@ -4,7 +4,7 @@ import type { UserDTO, UpdateUser } from '@/types/auth';
 
 export const profileService = {
   update(data: UpdateUser) {
-    return api.patch<ApiResponse<UserDTO>>('/identity/profile/', data);
+    return api.patch<ApiResponse<UserDTO>>('/identity/profile', data);
   },
 
   logicalDelete() {
@@ -12,6 +12,6 @@ export const profileService = {
   },
 
   delete() {
-    return api.delete<ApiResponse<UserDTO>>('/identity/profile/');
+    return api.delete<ApiResponse<UserDTO>>('/identity/profile');
   },
 };

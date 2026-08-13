@@ -8,7 +8,7 @@ export const ticketService = {
   },
 
   search(filters: SearchTicket, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<TicketFull>>>('/booking/status/tickets/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<TicketFull>>>('/booking/status/tickets/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {

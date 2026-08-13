@@ -7,7 +7,6 @@ export interface Ticket {
   finalPrice: number;
   bookingTime: string;
   isCancelled: boolean;
-  token: string;
 }
 
 export interface TicketFull extends Ticket {
@@ -37,7 +36,6 @@ export interface CreateTicket {
 
 export interface UpdateTicket {
   id: number;
-  token?: string;
   userId?: number;
   tripId?: number;
   seatId?: number;
@@ -49,7 +47,6 @@ export interface SearchTicket {
   startBookingTime?: string;
   endBookingTime?: string;
   isCancelled?: boolean;
-  token?: string;
   userId?: number;
   tripId?: number;
   seatId?: number;

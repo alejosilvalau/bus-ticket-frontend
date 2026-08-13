@@ -9,7 +9,7 @@ export const tripService = {
   },
 
   search(filters: SearchTrip, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<TripFull>>>('/journeys/catalog/trips/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<TripFull>>>('/journeys/catalog/trips/search', { params: { ...filters, page, size } });
   },
 
   listAvailable(page = 0, size = 20) {
@@ -17,7 +17,7 @@ export const tripService = {
   },
 
   searchAvailable(filters: SearchTrip, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<TripFull>>>('/journeys/catalog/trips/available/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<TripFull>>>('/journeys/catalog/trips/available/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {

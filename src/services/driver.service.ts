@@ -8,7 +8,7 @@ export const driverService = {
   },
 
   search(filters: SearchDriver, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<Driver>>>('/identity/drivers/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<Driver>>>('/identity/drivers/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {

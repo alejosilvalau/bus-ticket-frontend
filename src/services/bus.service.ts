@@ -8,7 +8,7 @@ export const busService = {
   },
 
   search(filters: SearchBus, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<Bus>>>('/fleet/availability/buses/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<Bus>>>('/fleet/availability/buses/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {

@@ -8,7 +8,7 @@ export const locationService = {
   },
 
   search(filters: SearchLocation, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<Location>>>('/journeys/catalog/locations/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<Location>>>('/journeys/catalog/locations/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {

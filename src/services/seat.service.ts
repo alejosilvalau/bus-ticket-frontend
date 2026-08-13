@@ -8,7 +8,7 @@ export const seatService = {
   },
 
   search(filters: SearchSeat, page = 0, size = 20) {
-    return api.post<ApiResponse<PageResponse<SeatFull>>>('/fleet/availability/seats/search', filters, { params: { page, size } });
+    return api.get<ApiResponse<PageResponse<SeatFull>>>('/fleet/availability/seats/search', { params: { ...filters, page, size } });
   },
 
   getById(id: number) {
