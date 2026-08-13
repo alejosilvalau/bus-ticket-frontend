@@ -63,7 +63,7 @@ export default function Header() {
         <div className="hidden items-center gap-3 md:flex">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">{user?.firstName}</span>
+              <span className="text-sm text-gray-600 capitalize">{user?.firstName}</span>
               <button onClick={handleLogout} className="flex items-center gap-1 rounded-lg bg-[#c60001] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#a50001] transition-colors">
                 <LogOut className="h-4 w-4" />
                 Salir
@@ -112,7 +112,7 @@ export default function Header() {
           <div className="mt-3 border-t border-gray-100 pt-3">
             {isAuthenticated ? (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">{user?.firstName}</span>
+                <span className="text-sm text-gray-600 capitalize">{user?.firstName}</span>
                 <button onClick={handleLogout} className="flex items-center gap-1 rounded-lg bg-[#c60001] px-3 py-1.5 text-sm font-medium text-white">
                   <LogOut className="h-4 w-4" /> Salir
                 </button>
