@@ -32,6 +32,10 @@ export default function Checkout() {
 
   const [selectedSeat, setSelectedSeat] = useState<SeatAvailability | null>(null);
   const [booking, setBooking] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [errors, setErrors] = useState<{ cardNumber?: string; expiry?: string; cvv?: string }>({});
 
   const trip = tripData?.data?.data;
   const seats = seatsData?.data?.data || [];
@@ -42,6 +46,14 @@ export default function Checkout() {
 
   const handleBook = async () => {
     if (!trip || !selectedSeat || !user) return;
+
+    const newErrors: { cardNumber?: string; expiry?: string; cvv?: string } = {};
+    if (!cardNumber.trim()) newErrors.cardNumber = 'Campo obligatorio';
+    if (!expiry.trim()) newErrors.expiry = 'Campo obligatorio';
+    if (!cvv.trim()) newErrors.cvv = 'Campo obligatorio';
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     setBooking(true);
     try {
       const response = await ticketService.create({
@@ -136,29 +148,62 @@ export default function Checkout() {
                   <label className="text-sm font-medium text-gray-700">Número de Tarjeta</label>
                   <input
                     type="text"
+                    value={cardNumber}
+                    onChange={(e) => {
+                      setCardNumber(e.target.value);
+                      if (errors.cardNumber) setErrors({ ...errors, cardNumber: undefined });
+                    }}
                     placeholder="4242 4242 4242 4242"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+                      errors.cardNumber
+                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-[#c60001] focus:ring-1 focus:ring-[#c60001]'
+                    }`}
                     maxLength={19}
+                    required
                   />
+                  {errors.cardNumber && <p className="mt-1 text-xs text-red-500">{errors.cardNumber}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium text-gray-700">Vencimiento</label>
                     <input
                       type="text"
+                      value={expiry}
+                      onChange={(e) => {
+                        setExpiry(e.target.value);
+                        if (errors.expiry) setErrors({ ...errors, expiry: undefined });
+                      }}
                       placeholder="MM/AA"
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
+                      className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+                        errors.expiry
+                          ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-gray-300 focus:border-[#c60001] focus:ring-1 focus:ring-[#c60001]'
+                      }`}
                       maxLength={5}
+                      required
                     />
+                    {errors.expiry && <p className="mt-1 text-xs text-red-500">{errors.expiry}</p>}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">CVV</label>
                     <input
                       type="text"
+                      value={cvv}
+                      onChange={(e) => {
+                        setCvv(e.target.value);
+                        if (errors.cvv) setErrors({ ...errors, cvv: undefined });
+                      }}
                       placeholder="123"
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
+                      className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+                        errors.cvv
+                          ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-gray-300 focus:border-[#c60001] focus:ring-1 focus:ring-[#c60001]'
+                      }`}
                       maxLength={4}
+                      required
                     />
+                    {errors.cvv && <p className="mt-1 text-xs text-red-500">{errors.cvv}</p>}
                   </div>
                 </div>
               </div>
