@@ -186,21 +186,19 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
             <QrCode className="mx-auto mb-1 h-4 w-4" />
             QR del ticket
           </div>
-
-          <div className="flex flex-col gap-2">
-            {!ticket.isCancelled && (
-              <>
-                <Button variant="danger" size="sm" onClick={() => onCancel(ticket)}>
-                  Cancelar ticket
-                </Button>
-                <Button variant="secondary" size="sm" onClick={handleDownload}>
-                  Descargar ticket
-                </Button>
-              </>
-            )}
-          </div>
         </div>
       </div>
+
+      {!ticket.isCancelled && (
+        <div className="mt-4 flex w-full flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:items-stretch">
+          <Button variant="danger" size="sm" className="w-full sm:flex-1" onClick={() => onCancel(ticket)}>
+            Cancelar ticket
+          </Button>
+          <Button variant="secondary" size="sm" className="w-full sm:flex-1" onClick={handleDownload}>
+            Descargar ticket
+          </Button>
+        </div>
+      )}
 
       <Modal isOpen={showQr} onClose={() => setShowQr(false)} title="Código QR" maxWidth="max-w-md" backdropClassName="bg-black/60">
         <div className="flex flex-col items-center gap-3 py-2">
