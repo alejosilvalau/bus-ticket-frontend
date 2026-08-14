@@ -81,7 +81,7 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
     const resolvedToken = token ?? (await tokenQuery.refetch()).data?.data?.data;
     const qrSource = resolvedToken ? JSON.stringify(resolvedToken) : qrValue;
     const qrDataUrl = await QRCodeGenerator.toDataURL(qrSource, {
-      width: 320,
+      width: 512,
       margin: 1,
       errorCorrectionLevel: 'M',
     });
@@ -118,19 +118,22 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
     doc.setDrawColor(229, 231, 235);
     doc.line(20, 46, pageWidth - 20, 46);
 
-    addTicketText(doc, 'Salida:', departureLabel, 20, 62);
-    addTicketText(doc, 'Asiento:', seatLabel, 20, 74);
-    addTicketText(doc, 'Reserva:', parseDate(ticket.bookingTime), 20, 86);
-    addTicketText(doc, 'Precio:', `$${ticket.finalPrice.toLocaleString('es-AR')}`, 20, 98);
+    addTicketText(doc, 'Salida:', departureLabel, 20, 190);
+    addTicketText(doc, 'Asiento:', seatLabel, 20, 202);
+    addTicketText(doc, 'Reserva:', parseDate(ticket.bookingTime), 20, 214);
+    addTicketText(doc, 'Precio:', `$${ticket.finalPrice.toLocaleString('es-AR')}`, 20, 226);
+
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 176, pageWidth - 20, 176);
 
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235);
-    doc.roundedRect(122, 58, 72, 72, 4, 4, 'FD');
-    doc.addImage(qrDataUrl, 'PNG', 127, 63, 62, 62);
+    doc.roundedRect(55, 58, 100, 100, 4, 4, 'FD');
+    doc.addImage(qrDataUrl, 'PNG', 60, 63, 90, 90);
 
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
-    doc.text('Presentá este código al abordar', 158, 139, { align: 'center' });
+    doc.text('Presentá este código al abordar', 105, 166, { align: 'center' });
 
     doc.save(`ticket-${ticket.id}.pdf`);
   };
