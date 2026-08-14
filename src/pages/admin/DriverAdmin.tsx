@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { driverService } from '@/services/driver.service';
 import { useDrivers } from '@/hooks/queries/useDrivers';
+import { getApiError } from '@/utils/apiErrors';
 import { useToast } from '@/context/ToastContext';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Button from '@/components/ui/Button';
@@ -56,7 +57,7 @@ export default function DriverAdmin() {
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['drivers'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -69,7 +70,7 @@ export default function DriverAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['drivers'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

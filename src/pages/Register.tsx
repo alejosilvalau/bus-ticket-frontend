@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, User, Bus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { getApiError } from '@/utils/apiErrors';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -50,7 +51,7 @@ export default function Register() {
       showToast('¡Cuenta creada! Ahora iniciá sesión.', 'success');
       navigate('/login');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al registrar';
+      const msg = getApiError(err, 'Error al registrar');
       showToast(msg, 'error');
     } finally {
       setLoading(false);

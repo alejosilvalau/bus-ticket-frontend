@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Bus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { getApiError } from '@/utils/apiErrors';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -33,7 +34,7 @@ export default function Login() {
       showToast('¡Bienvenido!', 'success');
       navigate('/');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Credenciales incorrectas';
+      const msg = getApiError(err, 'Credenciales incorrectas');
       showToast(msg, 'error');
     } finally {
       setLoading(false);

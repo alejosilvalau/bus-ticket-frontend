@@ -14,6 +14,7 @@ import { profileService } from '@/services/profile.service';
 import { authService } from '@/services/auth.service';
 import { useTicketSearch } from '@/hooks/queries/useTickets';
 import { ticketService } from '@/services/ticket.service';
+import { getApiError } from '@/utils/apiErrors';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -254,7 +255,7 @@ export default function Profile() {
       updateUser(res.data.data);
       showToast('Perfil actualizado', 'success');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al actualizar';
+      const msg = getApiError(err, 'Error al actualizar');
       showToast(msg, 'error');
     } finally {
       setProfileLoading(false);
@@ -273,7 +274,7 @@ export default function Profile() {
       showToast('Contraseña cambiada', 'success');
       passwordForm.reset();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cambiar contraseña';
+      const msg = getApiError(err, 'Error al cambiar contraseña');
       showToast(msg, 'error');
     } finally {
       setPasswordLoading(false);
@@ -291,7 +292,7 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ['trip', cancelTicket.trip.id, 'seats'] });
       setCancelTicket(null);
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cancelar';
+      const msg = getApiError(err, 'Error al cancelar');
       showToast(msg, 'error');
     } finally {
       setCancelLoading(false);

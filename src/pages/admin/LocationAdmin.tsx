@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { locationService } from '@/services/location.service';
 import { useLocations } from '@/hooks/queries/useLocations';
+import { getApiError } from '@/utils/apiErrors';
 import { useToast } from '@/context/ToastContext';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Button from '@/components/ui/Button';
@@ -53,7 +54,7 @@ export default function LocationAdmin() {
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['locations'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -66,7 +67,7 @@ export default function LocationAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['locations'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

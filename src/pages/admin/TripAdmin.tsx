@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { tripService } from '@/services/trip.service';
 import { useTrips } from '@/hooks/queries/useTrips';
+import { getApiError } from '@/utils/apiErrors';
 import { useBuses } from '@/hooks/queries/useBuses';
 import { useDrivers } from '@/hooks/queries/useDrivers';
 import { useLocations } from '@/hooks/queries/useLocations';
@@ -97,7 +98,7 @@ export default function TripAdmin() {
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['trips'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -110,7 +111,7 @@ export default function TripAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['trips'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

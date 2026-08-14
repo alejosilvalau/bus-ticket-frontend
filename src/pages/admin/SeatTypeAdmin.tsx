@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { seatTypeService } from '@/services/seat-type.service';
 import { useSeatTypes } from '@/hooks/queries/useSeatTypes';
+import { getApiError } from '@/utils/apiErrors';
 import { useToast } from '@/context/ToastContext';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Button from '@/components/ui/Button';
@@ -52,7 +53,7 @@ export default function SeatTypeAdmin() {
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['seatTypes'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -65,7 +66,7 @@ export default function SeatTypeAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['seatTypes'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

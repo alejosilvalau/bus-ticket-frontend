@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { busService } from '@/services/bus.service';
 import { useBuses } from '@/hooks/queries/useBuses';
+import { getApiError } from '@/utils/apiErrors';
 import { useToast } from '@/context/ToastContext';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Button from '@/components/ui/Button';
@@ -54,7 +55,7 @@ export default function BusAdmin() {
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['buses'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -67,7 +68,7 @@ export default function BusAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['buses'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

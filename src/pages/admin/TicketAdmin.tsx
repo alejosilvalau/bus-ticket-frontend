@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2, Ban } from 'lucide-react';
 import { ticketService } from '@/services/ticket.service';
 import { useTickets } from '@/hooks/queries/useTickets';
+import { getApiError } from '@/utils/apiErrors';
 import { useTrips, useTripSeats } from '@/hooks/queries/useTrips';
 import { useToast } from '@/context/ToastContext';
 import DataTable, { type Column } from '@/components/ui/DataTable';
@@ -72,7 +73,7 @@ export default function TicketAdmin() {
       setEditing(null);
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -85,7 +86,7 @@ export default function TicketAdmin() {
       setDeleting(null);
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };
@@ -98,7 +99,7 @@ export default function TicketAdmin() {
       setCancelling(null);
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error';
+      const msg = getApiError(err, 'Error');
       showToast(msg, 'error');
     }
   };

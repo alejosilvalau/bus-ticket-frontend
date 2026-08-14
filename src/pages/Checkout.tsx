@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { ticketService } from '@/services/ticket.service';
 import SeatMap from '@/components/SeatMap';
+import { getApiError } from '@/utils/apiErrors';
 import Spinner from '@/components/ui/Spinner';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -175,7 +176,7 @@ export default function Checkout() {
         showToast(`${fulfilled.length} asiento(s) comprados, ${failed.length} fallaron. Verificá disponibilidad.`, 'error');
       }
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al comprar ticket';
+      const msg = getApiError(err, 'Error al comprar ticket');
       showToast(msg, 'error');
       queryClient.invalidateQueries({ queryKey: ['trip', trip?.id, 'seats'] });
     } finally {
