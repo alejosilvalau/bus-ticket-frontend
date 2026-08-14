@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTrip, useTripSeats } from '@/hooks/queries/useTrips';
@@ -9,7 +9,7 @@ import SeatMap from '@/components/SeatMap';
 import Spinner from '@/components/ui/Spinner';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { ArrowRight, CreditCard, MapPin, Clock, Bus } from 'lucide-react';
+import { ArrowRight, CreditCard, MapPin, Clock, Bus, AlertCircle } from 'lucide-react';
 import type { SeatAvailability } from '@/types/seat';
 
 function parseDate(dateStr: string) {
@@ -74,6 +74,11 @@ export default function Checkout() {
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState<{ cardNumber?: string; expiry?: string; cvv?: string }>({});
+  const [paymentErrorShown, setPaymentErrorShown] = useState(false);
+  const paymentRef = useRef<HTMLDivElement>(null);
+  const cardNumberInputRef = useRef<HTMLInputElement>(null);
+  const expiryInputRef = useRef<HTMLInputElement>(null);
+  const cvvInputRef = useRef<HTMLInputElement>(null);
 
   const trip = tripData?.data?.data;
   const seats = seatsData?.data?.data || [];
@@ -99,7 +104,16 @@ export default function Checkout() {
     if (expiryError) newErrors.expiry = expiryError;
     if (cvvError) newErrors.cvv = cvvError;
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (Object.keys(newErrors).length > 0) {
+      setPaymentErrorShown(true);
+      paymentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        if (newErrors.cardNumber) cardNumberInputRef.current?.focus();
+        else if (newErrors.expiry) expiryInputRef.current?.focus();
+        else if (newErrors.cvv) cvvInputRef.current?.focus();
+      }, 200);
+      return;
+    }
 
     setBooking(true);
     try {
@@ -203,15 +217,23 @@ export default function Checkout() {
               <p className="mb-4 text-sm text-gray-600">
                 Este es un proyecto universitario. El pago es simulado.
               </p>
-              <div className="space-y-3">
+              {paymentErrorShown && (errors.cardNumber || errors.expiry || errors.cvv) && (
+                <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  Completá los campos de pago
+                </div>
+              )}
+              <div className="space-y-3" ref={paymentRef}>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Número de Tarjeta</label>
                   <input
                     type="text"
                     value={cardNumber}
+                    ref={cardNumberInputRef}
                     onChange={(e) => {
                       setCardNumber(formatCardNumber(e.target.value));
                       if (errors.cardNumber) setErrors({ ...errors, cardNumber: undefined });
+                      setPaymentErrorShown(false);
                     }}
                     placeholder="4242 4242 4242 4242"
                     className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
@@ -230,9 +252,11 @@ export default function Checkout() {
                     <input
                       type="text"
                     value={expiry}
+                    ref={expiryInputRef}
                     onChange={(e) => {
                       setExpiry(formatExpiry(e.target.value));
                       if (errors.expiry) setErrors({ ...errors, expiry: undefined });
+                      setPaymentErrorShown(false);
                     }}
                       placeholder="MM/AA"
                       className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
@@ -250,9 +274,11 @@ export default function Checkout() {
                     <input
                       type="text"
                     value={cvv}
+                    ref={cvvInputRef}
                     onChange={(e) => {
                       setCvv(formatCvv(e.target.value));
                       if (errors.cvv) setErrors({ ...errors, cvv: undefined });
+                      setPaymentErrorShown(false);
                     }}
                       placeholder="123"
                       className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
