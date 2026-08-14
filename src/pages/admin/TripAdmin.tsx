@@ -18,6 +18,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Pagination from '@/components/ui/Pagination';
 import type { TripFull } from '@/types/trip';
+import { titleCase, upper } from '@/utils/format';
 
 function fmt(dateStr: string) {
   try { return new Date(dateStr).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch { return dateStr; }
@@ -118,12 +119,12 @@ export default function TripAdmin() {
 
   const columns: Column<TripFull>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Ruta', accessor: (r) => `${r.locationOrigin.cityName} → ${r.locationDestination.cityName}` },
+    { header: 'Ruta', accessor: (r) => `${titleCase(r.locationOrigin.cityName)} → ${titleCase(r.locationDestination.cityName)}` },
     { header: 'Salida', accessor: (r) => fmt(r.departureDate) },
     { header: 'Llegada', accessor: (r) => fmt(r.arrivalDate) },
     { header: 'Precio', accessor: (r) => `$${r.basePrice.toLocaleString('es-AR')}` },
-    { header: 'Bus', accessor: (r) => r.bus.plateNumber },
-    { header: 'Chofer', accessor: (r) => `${r.driver.firstName} ${r.driver.lastName}` },
+    { header: 'Bus', accessor: (r) => upper(r.bus.plateNumber) },
+    { header: 'Chofer', accessor: (r) => `${titleCase(r.driver.firstName)} ${titleCase(r.driver.lastName)}` },
   ];
 
   return (
@@ -151,12 +152,12 @@ export default function TripAdmin() {
           </div>
           <Input label="Precio Base" type="number" error={errors.basePrice?.message} {...register('basePrice', { valueAsNumber: true })} />
           <div className="grid grid-cols-2 gap-4">
-            <Select label="Bus" options={buses.map((b) => ({ value: b.id, label: b.plateNumber }))} placeholder="Seleccionar" error={errors.busId?.message} {...register('busId', { valueAsNumber: true })} />
-            <Select label="Chofer" options={drivers.map((d) => ({ value: d.id, label: `${d.firstName} ${d.lastName}` }))} placeholder="Seleccionar" error={errors.driverId?.message} {...register('driverId', { valueAsNumber: true })} />
+            <Select label="Bus" options={buses.map((b) => ({ value: b.id, label: upper(b.plateNumber) }))} placeholder="Seleccionar" error={errors.busId?.message} {...register('busId', { valueAsNumber: true })} />
+            <Select label="Chofer" options={drivers.map((d) => ({ value: d.id, label: `${titleCase(d.firstName)} ${titleCase(d.lastName)}` }))} placeholder="Seleccionar" error={errors.driverId?.message} {...register('driverId', { valueAsNumber: true })} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Select label="Origen" options={locations.map((l) => ({ value: l.id, label: `${l.cityName}, ${l.state}` }))} placeholder="Seleccionar" error={errors.locationOriginId?.message} {...register('locationOriginId', { valueAsNumber: true })} />
-            <Select label="Destino" options={locations.map((l) => ({ value: l.id, label: `${l.cityName}, ${l.state}` }))} placeholder="Seleccionar" error={errors.locationDestinationId?.message} {...register('locationDestinationId', { valueAsNumber: true })} />
+            <Select label="Origen" options={locations.map((l) => ({ value: l.id, label: `${titleCase(l.cityName)}, ${titleCase(l.state)}` }))} placeholder="Seleccionar" error={errors.locationOriginId?.message} {...register('locationOriginId', { valueAsNumber: true })} />
+            <Select label="Destino" options={locations.map((l) => ({ value: l.id, label: `${titleCase(l.cityName)}, ${titleCase(l.state)}` }))} placeholder="Seleccionar" error={errors.locationDestinationId?.message} {...register('locationDestinationId', { valueAsNumber: true })} />
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" type="button" onClick={() => setModalOpen(false)}>Cancelar</Button>

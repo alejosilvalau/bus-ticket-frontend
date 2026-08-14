@@ -14,6 +14,7 @@ import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
 import Pagination from '@/components/ui/Pagination';
 import type { Location } from '@/types/location';
+import { titleCase } from '@/utils/format';
 
 const schema = z.object({
   cityName: z.string().min(1, 'Requerido').max(100),
@@ -74,8 +75,8 @@ export default function LocationAdmin() {
 
   const columns: Column<Location>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Ciudad', accessor: (r) => r.cityName },
-    { header: 'Estado', accessor: (r) => r.state },
+    { header: 'Ciudad', accessor: (r) => titleCase(r.cityName) },
+    { header: 'Estado', accessor: (r) => titleCase(r.state) },
     { header: 'Código Postal', accessor: (r) => r.postalCode },
   ];
 
@@ -109,7 +110,7 @@ export default function LocationAdmin() {
       </Modal>
 
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Eliminar Ubicación">
-        <p className="text-sm text-gray-600">¿Eliminar {deleting?.cityName}, {deleting?.state}?</p>
+        <p className="text-sm text-gray-600">¿Eliminar {titleCase(deleting?.cityName ?? '')}, {titleCase(deleting?.state ?? '')}?</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancelar</Button>
           <Button variant="danger" onClick={handleDelete}>Eliminar</Button>

@@ -1,5 +1,6 @@
 import type { SeatAvailability } from '@/types/seat';
 import { Armchair } from 'lucide-react';
+import { titleCase } from '@/utils/format';
 
 interface SeatMapProps {
   seats: SeatAvailability[];
@@ -48,9 +49,9 @@ export default function SeatMap({ seats, selectedSeatIds, onSelectSeat }: SeatMa
                     : 'border-green-200 bg-green-50 text-green-700 hover:border-green-400 hover:bg-green-100 cursor-pointer'
               }`}
             >
-              <span className="font-bold">{seat.letter}{seat.number}</span>
+              <span className="font-bold">{seat.letter.toUpperCase()}{seat.number}</span>
               <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
-                {seat.seatTypeName}
+                {titleCase(seat.seatTypeName)}
               </span>
             </button>
           );

@@ -26,6 +26,7 @@ import Modal from '@/components/ui/Modal';
 import { User, Lock, Ticket, QrCode } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { TicketFull } from '@/types/ticket';
+import { titleCase } from '@/utils/format';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'El nombre es requerido').max(100),
@@ -73,9 +74,9 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
 
   const token = tokenQuery.data?.data?.data;
   const qrValue = token ? JSON.stringify(token) : `ticket:${ticket.id}`;
-  const routeLabel = token ? `${token.originCityName} → ${token.destinationCityName}` : `Viaje #${ticket.trip.id}`;
-  const pdfRouteLabel = token ? `${token.originCityName} - ${token.destinationCityName}` : `Viaje #${ticket.trip.id}`;
-  const seatLabel = token ? `${token.seatLetter}${token.seatNumber} · ${token.seatTypeName}` : `${ticket.seat.letter}${ticket.seat.number}`;
+  const routeLabel = token ? `${titleCase(token.originCityName)} → ${titleCase(token.destinationCityName)}` : `Viaje #${ticket.trip.id}`;
+  const pdfRouteLabel = token ? `${titleCase(token.originCityName)} - ${titleCase(token.destinationCityName)}` : `Viaje #${ticket.trip.id}`;
+  const seatLabel = token ? `${token.seatLetter.toUpperCase()}${token.seatNumber} · ${titleCase(token.seatTypeName)}` : `${ticket.seat.letter.toUpperCase()}${ticket.seat.number}`;
   const departureLabel = token ? parseDate(token.tripDepartureDate) : parseDate(ticket.trip.departureDate);
 
   const handleDownload = async () => {

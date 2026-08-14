@@ -12,6 +12,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { ArrowRight, CreditCard, MapPin, Clock, Bus, AlertCircle } from 'lucide-react';
 import type { SeatAvailability } from '@/types/seat';
+import { titleCase, upper } from '@/utils/format';
 
 function parseDate(dateStr: string) {
   try {
@@ -305,9 +306,9 @@ export default function Checkout() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-2 text-gray-700">
                 <MapPin className="h-4 w-4 text-[#c60001]" />
-                <span className="font-medium">{trip.locationOrigin.cityName}</span>
+                <span className="font-medium">{titleCase(trip.locationOrigin.cityName)}</span>
                 <ArrowRight className="h-3 w-3 text-gray-400" />
-                <span className="font-medium">{trip.locationDestination.cityName}</span>
+                <span className="font-medium">{titleCase(trip.locationDestination.cityName)}</span>
               </div>
 
               <div className="flex items-center gap-2 text-gray-600">
@@ -317,7 +318,7 @@ export default function Checkout() {
 
               <div className="flex items-center gap-2 text-gray-600">
                 <Bus className="h-4 w-4" />
-                Bus {trip.bus.plateNumber}
+                Bus {upper(trip.bus.plateNumber)}
               </div>
 
               {selectedSeats.length > 0 && (
@@ -327,7 +328,7 @@ export default function Checkout() {
                     {selectedSeats.map((seat) => (
                       <div key={seat.id} className="flex items-center justify-between">
                         <span className="font-medium text-gray-900">
-                          {seat.letter}{seat.number} — {seat.seatTypeName}
+                          {seat.letter.toUpperCase()}{seat.number} — {titleCase(seat.seatTypeName)}
                         </span>
                         <span className="text-xs text-gray-600">
                           +${seat.seatTypeUpcharge.toLocaleString('es-AR')}

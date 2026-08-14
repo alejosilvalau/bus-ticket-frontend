@@ -6,6 +6,7 @@ import { useLocations } from '@/hooks/queries/useLocations';
 import { useSeatTypes } from '@/hooks/queries/useSeatTypes';
 import { useBuses } from '@/hooks/queries/useBuses';
 import type { SearchTrip } from '@/types/trip';
+import { titleCase, upper } from '@/utils/format';
 import Spinner from '@/components/ui/Spinner';
 import Pagination from '@/components/ui/Pagination';
 
@@ -201,7 +202,7 @@ export default function TripExplorer() {
                   {locations
                     .filter((loc) => loc.id !== filters.locationDestinationId)
                     .map((loc) => (
-                      <option key={loc.id} value={loc.id}>{loc.cityName}</option>
+                      <option key={loc.id} value={loc.id}>{titleCase(loc.cityName)}</option>
                     ))}
                 </select>
               </div>
@@ -225,7 +226,7 @@ export default function TripExplorer() {
                   {locations
                     .filter((loc) => loc.id !== filters.locationOriginId)
                     .map((loc) => (
-                      <option key={loc.id} value={loc.id}>{loc.cityName}</option>
+                      <option key={loc.id} value={loc.id}>{titleCase(loc.cityName)}</option>
                     ))}
                 </select>
               </div>
@@ -239,7 +240,7 @@ export default function TripExplorer() {
                 >
                   <option value="">Todos</option>
                   {buses.map((bus) => (
-                    <option key={bus.id} value={bus.id}>{bus.plateNumber}</option>
+                    <option key={bus.id} value={bus.id}>{upper(bus.plateNumber)}</option>
                   ))}
                 </select>
               </div>
@@ -289,7 +290,7 @@ export default function TripExplorer() {
                 >
                   <option value="">Todos</option>
                   {seatTypes.map((st) => (
-                    <option key={st.id} value={st.id}>{st.name}</option>
+                    <option key={st.id} value={st.id}>{titleCase(st.name)}</option>
                   ))}
                 </select>
               </div>
@@ -352,11 +353,11 @@ export default function TripExplorer() {
                     <div className="flex-1">
                       <div className="mb-2 flex items-center gap-3">
                         <span className="text-lg font-bold text-gray-900">
-                          {trip.locationOrigin.cityName}
+                          {titleCase(trip.locationOrigin.cityName)}
                         </span>
                         <ArrowRight className="h-4 w-4 text-gray-400" />
                         <span className="text-lg font-bold text-gray-900">
-                          {trip.locationDestination.cityName}
+                          {titleCase(trip.locationDestination.cityName)}
                         </span>
                       </div>
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -366,7 +367,7 @@ export default function TripExplorer() {
                         </span>
                         <span>{formatDuration(trip.departureDate, trip.arrivalDate)}</span>
                         <span>{parseDate(trip.departureDate)}</span>
-                        <span className="text-xs text-gray-400">Bus {trip.bus.plateNumber}</span>
+                        <span className="text-xs text-gray-400">Bus {upper(trip.bus.plateNumber)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">

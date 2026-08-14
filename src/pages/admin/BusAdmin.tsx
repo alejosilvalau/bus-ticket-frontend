@@ -15,6 +15,7 @@ import Input from '@/components/ui/Input';
 import Pagination from '@/components/ui/Pagination';
 import Badge from '@/components/ui/Badge';
 import type { Bus } from '@/types/bus';
+import { upper } from '@/utils/format';
 
 const schema = z.object({
   plateNumber: z.string().min(1, 'Requerido').max(20),
@@ -75,7 +76,7 @@ export default function BusAdmin() {
 
   const columns: Column<Bus>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Patente', accessor: (r) => r.plateNumber },
+    { header: 'Patente', accessor: (r) => upper(r.plateNumber) },
     { header: 'Capacidad', accessor: (r) => r.totalCapacity },
     { header: 'Estado', accessor: (r) => <Badge variant={r.isActive ? 'success' : 'danger'}>{r.isActive ? 'Activo' : 'Inactivo'}</Badge> },
   ];
@@ -109,7 +110,7 @@ export default function BusAdmin() {
       </Modal>
 
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Eliminar Autobús">
-        <p className="text-sm text-gray-600">¿Eliminar autobús {deleting?.plateNumber}?</p>
+        <p className="text-sm text-gray-600">¿Eliminar autobús {upper(deleting?.plateNumber ?? '')}?</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancelar</Button>
           <Button variant="danger" onClick={handleDelete}>Eliminar</Button>

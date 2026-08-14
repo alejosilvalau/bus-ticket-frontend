@@ -14,6 +14,7 @@ import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
 import Pagination from '@/components/ui/Pagination';
 import type { SeatType } from '@/types/seat-type';
+import { titleCase } from '@/utils/format';
 
 const schema = z.object({
   name: z.string().min(1, 'Requerido').max(50),
@@ -73,7 +74,7 @@ export default function SeatTypeAdmin() {
 
   const columns: Column<SeatType>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Nombre', accessor: (r) => r.name },
+    { header: 'Nombre', accessor: (r) => titleCase(r.name) },
     { header: 'Recargo', accessor: (r) => `$${r.upcharge.toLocaleString('es-AR')}` },
   ];
 
@@ -106,7 +107,7 @@ export default function SeatTypeAdmin() {
       </Modal>
 
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Eliminar Tipo">
-        <p className="text-sm text-gray-600">¿Eliminar tipo "{deleting?.name}"?</p>
+        <p className="text-sm text-gray-600">¿Eliminar tipo "{titleCase(deleting?.name ?? '')}"?</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancelar</Button>
           <Button variant="danger" onClick={handleDelete}>Eliminar</Button>

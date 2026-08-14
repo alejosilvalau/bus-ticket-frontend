@@ -15,6 +15,7 @@ import Input from '@/components/ui/Input';
 import Pagination from '@/components/ui/Pagination';
 import Badge from '@/components/ui/Badge';
 import type { Driver } from '@/types/driver';
+import { titleCase, upper } from '@/utils/format';
 
 const schema = z.object({
   firstName: z.string().min(1, 'Requerido').max(100),
@@ -77,8 +78,8 @@ export default function DriverAdmin() {
 
   const columns: Column<Driver>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Nombre', accessor: (r) => `${r.firstName} ${r.lastName}` },
-    { header: 'Licencia', accessor: (r) => r.licenseNumber },
+    { header: 'Nombre', accessor: (r) => `${titleCase(r.firstName)} ${titleCase(r.lastName)}` },
+    { header: 'Licencia', accessor: (r) => upper(r.licenseNumber) },
     { header: 'Teléfono', accessor: (r) => r.phoneNumber },
     { header: 'Estado', accessor: (r) => <Badge variant={r.isActive ? 'success' : 'danger'}>{r.isActive ? 'Activo' : 'Inactivo'}</Badge> },
   ];
@@ -120,7 +121,7 @@ export default function DriverAdmin() {
       </Modal>
 
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Eliminar Chofer">
-        <p className="text-sm text-gray-600">¿Estás seguro de eliminar a {deleting?.firstName} {deleting?.lastName}?</p>
+        <p className="text-sm text-gray-600">¿Estás seguro de eliminar a {titleCase(deleting?.firstName ?? '')} {titleCase(deleting?.lastName ?? '')}?</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancelar</Button>
           <Button variant="danger" onClick={handleDelete}>Eliminar</Button>

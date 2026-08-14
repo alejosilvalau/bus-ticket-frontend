@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, ArrowRight } from 'lucide-react';
 import { useLocations } from '@/hooks/queries/useLocations';
 import { useState } from 'react';
+import { titleCase } from '@/utils/format';
 
 export default function SearchBox() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function SearchBox() {
         >
           <option value="">Origen</option>
           {originOptions.map((loc) => (
-            <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
+            <option key={loc.id} value={loc.id}>{titleCase(loc.cityName)}, {titleCase(loc.state)}</option>
           ))}
         </select>
       </div>
@@ -60,7 +61,7 @@ export default function SearchBox() {
         >
           <option value="">Destino</option>
           {destinationOptions.map((loc) => (
-            <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
+            <option key={loc.id} value={loc.id}>{titleCase(loc.cityName)}, {titleCase(loc.state)}</option>
           ))}
         </select>
       </div>

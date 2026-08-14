@@ -16,6 +16,7 @@ import Select from '@/components/ui/Select';
 import Pagination from '@/components/ui/Pagination';
 import Badge from '@/components/ui/Badge';
 import type { TicketFull } from '@/types/ticket';
+import { titleCase } from '@/utils/format';
 
 const DEPARTURE_BUFFER_MS = 24 * 60 * 60 * 1000;
 const DEPARTURE_DEADLINE = Date.now() + DEPARTURE_BUFFER_MS;
@@ -108,13 +109,13 @@ export default function TicketAdmin() {
   const currentSeatId = editing?.seat.id;
   const seatOptions = tripSeats
     .filter((s) => s.isAvailable || s.id === currentSeatId)
-    .map((s) => ({ value: s.id, label: `${s.letter}${s.number} (${s.seatTypeName})` }));
+    .map((s) => ({ value: s.id, label: `${s.letter.toUpperCase()}${s.number} (${titleCase(s.seatTypeName)})` }));
 
   const columns: Column<TicketFull>[] = [
     { header: 'ID', accessor: (r) => r.id },
     { header: 'Usuario', accessor: (r) => r.user?.email || '-' },
     { header: 'Ruta', accessor: (r) => `${r.trip?.id || '-'}` },
-    { header: 'Asiento', accessor: (r) => r.seat ? `${r.seat.letter}${r.seat.number}` : '-' },
+    { header: 'Asiento', accessor: (r) => r.seat ? `${r.seat.letter.toUpperCase()}${r.seat.number}` : '-' },
     { header: 'Precio Final', accessor: (r) => `$${r.finalPrice.toLocaleString('es-AR')}` },
     { header: 'Estado', accessor: (r) => <Badge variant={r.isCancelled ? 'danger' : 'success'}>{r.isCancelled ? 'Cancelado' : 'Activo'}</Badge> },
     { header: 'Fecha', accessor: (r) => fmt(r.bookingTime) },
@@ -147,7 +148,7 @@ export default function TicketAdmin() {
       <Modal isOpen={!!editing} onClose={() => setEditing(null)} title={`Editar Ticket #${editing?.id ?? ''}`}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <p className="text-sm text-gray-600">Usuario: <span className="font-medium">{editing?.user?.email || '-'}</span></p>
-          <Select label="Viaje" options={futureTrips.map((t) => ({ value: t.id, label: `${t.locationOrigin.cityName} → ${t.locationDestination.cityName} (${fmt(t.departureDate)})` }))} placeholder="Seleccionar" error={errors.tripId?.message} {...tripField} value={selectedTripId || ''} onChange={onTripChange} />
+          <Select label="Viaje" options={futureTrips.map((t) => ({ value: t.id, label: `${titleCase(t.locationOrigin.cityName)} → ${titleCase(t.locationDestination.cityName)} (${fmt(t.departureDate)})` }))} placeholder="Seleccionar" error={errors.tripId?.message} {...tripField} value={selectedTripId || ''} onChange={onTripChange} />
           <Select label="Asiento" options={seatOptions} placeholder="Seleccionar" error={errors.seatId?.message} {...register('seatId', { valueAsNumber: true })} />
           <div className="flex justify-end gap-2">
             <Button variant="secondary" type="button" onClick={() => setEditing(null)}>Cancelar</Button>

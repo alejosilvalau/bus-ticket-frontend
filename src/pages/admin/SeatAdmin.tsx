@@ -17,6 +17,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Pagination from '@/components/ui/Pagination';
 import type { SeatFull } from '@/types/seat';
+import { titleCase, upper } from '@/utils/format';
 
 const schema = z.object({
   letter: z.string().min(1, 'Requerido').max(1),
@@ -84,9 +85,9 @@ export default function SeatAdmin() {
 
   const columns: Column<SeatFull>[] = [
     { header: 'ID', accessor: (r) => r.id },
-    { header: 'Asiento', accessor: (r) => `${r.letter}${r.number}` },
-    { header: 'Bus', accessor: (r) => r.bus.plateNumber },
-    { header: 'Tipo', accessor: (r) => r.seatType.name },
+    { header: 'Asiento', accessor: (r) => `${upper(r.letter)}${r.number}` },
+    { header: 'Bus', accessor: (r) => upper(r.bus.plateNumber) },
+    { header: 'Tipo', accessor: (r) => titleCase(r.seatType.name) },
   ];
 
   return (
@@ -114,14 +115,14 @@ export default function SeatAdmin() {
           </div>
           <Select
             label="Bus"
-            options={buses.map((b) => ({ value: b.id, label: `${b.plateNumber} (cap: ${b.totalCapacity})` }))}
+            options={buses.map((b) => ({ value: b.id, label: `${upper(b.plateNumber)} (cap: ${b.totalCapacity})` }))}
             placeholder="Seleccionar bus"
             error={errors.busId?.message}
             {...register('busId', { valueAsNumber: true })}
           />
           <Select
             label="Tipo de Asiento"
-            options={seatTypes.map((st) => ({ value: st.id, label: `${st.name} (+$${st.upcharge})` }))}
+            options={seatTypes.map((st) => ({ value: st.id, label: `${titleCase(st.name)} (+$${st.upcharge})` }))}
             placeholder="Seleccionar tipo"
             error={errors.seatTypeId?.message}
             {...register('seatTypeId', { valueAsNumber: true })}
@@ -134,7 +135,7 @@ export default function SeatAdmin() {
       </Modal>
 
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Eliminar Asiento">
-        <p className="text-sm text-gray-600">¿Eliminar asiento {deleting?.letter}{deleting?.number}?</p>
+        <p className="text-sm text-gray-600">¿Eliminar asiento {upper(deleting?.letter ?? '')}{deleting?.number}?</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancelar</Button>
           <Button variant="danger" onClick={handleDelete}>Eliminar</Button>
