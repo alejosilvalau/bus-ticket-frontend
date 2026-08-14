@@ -21,6 +21,7 @@ import Badge from '@/components/ui/Badge';
 import Tabs from '@/components/ui/Tabs';
 import Spinner from '@/components/ui/Spinner';
 import Pagination from '@/components/ui/Pagination';
+import Modal from '@/components/ui/Modal';
 import { User, Lock, Ticket, QrCode } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { TicketFull } from '@/types/ticket';
@@ -63,6 +64,7 @@ function addTicketText(doc: jsPDF, label: string, value: string, x: number, y: n
 }
 
 function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticket: TicketFull) => Promise<void> }) {
+  const [showQr, setShowQr] = useState(false);
   const tokenQuery = useQuery({
     queryKey: ['ticket-token', ticket.id],
     queryFn: () => ticketService.getToken(ticket.id),
@@ -160,7 +162,14 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <div className="rounded-xl border border-gray-200 bg-white p-3">
+          <div
+            onClick={() => token && setShowQr(true)}
+            role="button"
+            aria-label="Ampliar QR del ticket"
+            className={`rounded-xl border border-gray-200 bg-white p-3 transition-all ${
+              token ? 'cursor-pointer hover:ring-2 hover:ring-[#c60001] hover:shadow-md' : 'cursor-default'
+            }`}
+          >
             {token ? (
               <TicketQRCode value={qrValue} size={128} />
             ) : (
@@ -189,6 +198,15 @@ function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticke
           </div>
         </div>
       </div>
+
+      <Modal isOpen={showQr} onClose={() => setShowQr(false)} title="Código QR" maxWidth="max-w-md" backdropClassName="bg-black/60">
+        <div className="flex flex-col items-center gap-3 py-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-5">
+            <TicketQRCode value={qrValue} size={288} />
+          </div>
+          <p className="text-sm text-gray-600">Presentá este código al abordar</p>
+        </div>
+      </Modal>
     </Card>
   );
 }

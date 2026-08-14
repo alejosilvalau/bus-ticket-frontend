@@ -7,9 +7,10 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   maxWidth?: string;
+  backdropClassName?: string;
 }
 
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg', backdropClassName = 'bg-black/40' }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -23,7 +24,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/40" onClick={onClose} />
+      <div className={`fixed inset-0 ${backdropClassName}`} onClick={onClose} />
       <div className={`relative ${maxWidth} w-full mx-4 rounded-xl bg-white shadow-2xl`}>
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
