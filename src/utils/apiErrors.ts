@@ -15,6 +15,8 @@ const DICTIONARY: Record<string, string> = {
   'New password cannot be the same as the current password': 'La nueva contraseña no puede ser igual a la actual',
   'No authenticated user found': 'No se encontró un usuario autenticado',
   'Bus is not active.': 'El colectivo no está activo.',
+  'Bus capacity exceeded': 'Se superó la capacidad del colectivo',
+  'Bus capacity cannot be lower than the number of seats': 'La capacidad del colectivo no puede ser menor a la cantidad de asientos del colectivo',
   'Driver is not active.': 'El chofer no está activo.',
   'Seat is not active.': 'El asiento no está activo.',
   'Departure date must be in the future.': 'La fecha de salida debe ser futura.',
