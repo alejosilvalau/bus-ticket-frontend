@@ -63,7 +63,7 @@ function addTicketText(doc: jsPDF, label: string, value: string, x: number, y: n
   doc.text(value, x + 36, y);
 }
 
-function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticket: TicketFull) => Promise<void> }) {
+function TicketCard({ ticket, onCancel }: { ticket: TicketFull; onCancel: (ticket: TicketFull) => void }) {
   const [showQr, setShowQr] = useState(false);
   const tokenQuery = useQuery({
     queryKey: ['ticket-token', ticket.id],
@@ -224,6 +224,8 @@ export default function Profile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [ticketsPage, setTicketsPage] = useState(0);
+  const [cancelTicket, setCancelTicket] = useState<TicketFull | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const { data: ticketsData, isLoading: ticketsLoading } = useTicketSearch(
     { userId: user?.id },
     ticketsPage,
@@ -280,18 +282,21 @@ export default function Profile() {
     }
   };
 
-  const handleCancelTicket = async (ticket: TicketFull) => {
-    const confirmed = window.confirm(`¿Querés cancelar el ticket #${ticket.id}?`);
-    if (!confirmed) return;
+  const handleConfirmCancel = async () => {
+    if (!cancelTicket) return;
 
+    setCancelLoading(true);
     try {
-      await ticketService.cancel(ticket.id);
+      await ticketService.cancel(cancelTicket.id);
       showToast('Ticket cancelado', 'success');
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['trip', ticket.trip.id, 'seats'] });
+      queryClient.invalidateQueries({ queryKey: ['trip', cancelTicket.trip.id, 'seats'] });
+      setCancelTicket(null);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cancelar';
       showToast(msg, 'error');
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -349,7 +354,7 @@ export default function Profile() {
             ) : (
               <div className="space-y-3">
                 {tickets.map((ticket) => (
-                  <TicketCard key={ticket.id} ticket={ticket} onCancel={handleCancelTicket} />
+                  <TicketCard key={ticket.id} ticket={ticket} onCancel={setCancelTicket} />
                 ))}
               </div>
             )}
@@ -361,6 +366,31 @@ export default function Profile() {
           </Card>
         )}
       </div>
+
+      <Modal
+        isOpen={!!cancelTicket}
+        onClose={() => !cancelLoading && setCancelTicket(null)}
+        title="Cancelar ticket"
+        maxWidth="max-w-sm"
+        backdropClassName="bg-black/60"
+      >
+        {cancelTicket && (
+          <div className="py-2">
+            <p className="text-sm text-gray-700">
+              ¿Querés cancelar el ticket #{cancelTicket.id}?
+            </p>
+            <p className="mt-1 text-xs text-gray-500">Esta acción no se puede deshacer.</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setCancelTicket(null)} disabled={cancelLoading}>
+                Volver
+              </Button>
+              <Button variant="danger" onClick={handleConfirmCancel} loading={cancelLoading}>
+                Sí, cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
