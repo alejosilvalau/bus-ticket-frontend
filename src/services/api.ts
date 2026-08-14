@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { env } from '@/environment';
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipAuthRedirectOn401?: boolean;
+  }
+}
+
 const api = axios.create({
   baseURL: env.apiBaseUrl,
   headers: { 'Content-Type': 'application/json' },
@@ -17,7 +23,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const skipAuthRedirectOn401 = (error.config as { skipAuthRedirectOn401?: boolean } | undefined)?.skipAuthRedirectOn401;
+    if (error.response?.status === 401 && !skipAuthRedirectOn401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

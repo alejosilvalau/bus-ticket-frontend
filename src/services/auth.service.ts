@@ -16,6 +16,6 @@ export const authService = {
   },
 
   changePassword(data: ChangePassword) {
-    return api.patch<ApiResponse<boolean>>('/identity/auth/change-password', data);
+    return api.patch<ApiResponse<boolean>>('/identity/auth/change-password', data, { skipAuthRedirectOn401: true });
   },
 };
