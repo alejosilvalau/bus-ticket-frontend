@@ -20,6 +20,44 @@ function parseDate(dateStr: string) {
   }
 }
 
+function formatCardNumber(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 16);
+  return digits.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function formatCvv(value: string) {
+  return value.replace(/\D/g, '').slice(0, 4);
+}
+
+function validateCardNumber(value: string) {
+  if (!value.trim()) return 'Campo obligatorio';
+  if (!/^\d{16}$/.test(value.replace(/\D/g, ''))) return 'Número de tarjeta inválido (16 dígitos)';
+  return undefined;
+}
+
+function validateExpiry(value: string) {
+  if (!value.trim()) return 'Campo obligatorio';
+  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) return 'Formato MM/AA inválido';
+  const [month, year] = value.split('/').map(Number);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = Number(String(now.getFullYear()).slice(-2));
+  if (year < currentYear || (year === currentYear && month < currentMonth)) return 'La tarjeta está vencida';
+  return undefined;
+}
+
+function validateCvv(value: string) {
+  if (!value.trim()) return 'Campo obligatorio';
+  if (!/^\d{3,4}$/.test(value)) return 'El CVV debe tener 3 o 4 dígitos';
+  return undefined;
+}
+
 export default function Checkout() {
   const { tripId } = useParams<{ tripId: string }>();
   const navigate = useNavigate();
@@ -54,9 +92,12 @@ export default function Checkout() {
     if (!trip || selectedSeats.length === 0 || !user) return;
 
     const newErrors: { cardNumber?: string; expiry?: string; cvv?: string } = {};
-    if (!cardNumber.trim()) newErrors.cardNumber = 'Campo obligatorio';
-    if (!expiry.trim()) newErrors.expiry = 'Campo obligatorio';
-    if (!cvv.trim()) newErrors.cvv = 'Campo obligatorio';
+    const cardNumberError = validateCardNumber(cardNumber);
+    const expiryError = validateExpiry(expiry);
+    const cvvError = validateCvv(cvv);
+    if (cardNumberError) newErrors.cardNumber = cardNumberError;
+    if (expiryError) newErrors.expiry = expiryError;
+    if (cvvError) newErrors.cvv = cvvError;
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
@@ -169,7 +210,7 @@ export default function Checkout() {
                     type="text"
                     value={cardNumber}
                     onChange={(e) => {
-                      setCardNumber(e.target.value);
+                      setCardNumber(formatCardNumber(e.target.value));
                       if (errors.cardNumber) setErrors({ ...errors, cardNumber: undefined });
                     }}
                     placeholder="4242 4242 4242 4242"
@@ -188,11 +229,11 @@ export default function Checkout() {
                     <label className="text-sm font-medium text-gray-700">Vencimiento</label>
                     <input
                       type="text"
-                      value={expiry}
-                      onChange={(e) => {
-                        setExpiry(e.target.value);
-                        if (errors.expiry) setErrors({ ...errors, expiry: undefined });
-                      }}
+                    value={expiry}
+                    onChange={(e) => {
+                      setExpiry(formatExpiry(e.target.value));
+                      if (errors.expiry) setErrors({ ...errors, expiry: undefined });
+                    }}
                       placeholder="MM/AA"
                       className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
                         errors.expiry
@@ -208,11 +249,11 @@ export default function Checkout() {
                     <label className="text-sm font-medium text-gray-700">CVV</label>
                     <input
                       type="text"
-                      value={cvv}
-                      onChange={(e) => {
-                        setCvv(e.target.value);
-                        if (errors.cvv) setErrors({ ...errors, cvv: undefined });
-                      }}
+                    value={cvv}
+                    onChange={(e) => {
+                      setCvv(formatCvv(e.target.value));
+                      if (errors.cvv) setErrors({ ...errors, cvv: undefined });
+                    }}
                       placeholder="123"
                       className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
                         errors.cvv
