@@ -186,13 +186,23 @@ export default function TripExplorer() {
                 <label className="mb-1 block text-xs font-medium text-gray-600">Origen</label>
                 <select
                   value={filters.locationOriginId || ''}
-                  onChange={(e) => setFilters({ ...filters, locationOriginId: e.target.value ? Number(e.target.value) : undefined })}
+                  onChange={(e) => {
+                    const value = e.target.value ? Number(e.target.value) : undefined;
+                    setFilters({
+                      ...filters,
+                      locationOriginId: value,
+                      locationDestinationId:
+                        value !== undefined && value === filters.locationDestinationId ? undefined : filters.locationDestinationId,
+                    });
+                  }}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
                 >
                   <option value="">Todos</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.cityName}</option>
-                  ))}
+                  {locations
+                    .filter((loc) => loc.id !== filters.locationDestinationId)
+                    .map((loc) => (
+                      <option key={loc.id} value={loc.id}>{loc.cityName}</option>
+                    ))}
                 </select>
               </div>
 
@@ -200,13 +210,23 @@ export default function TripExplorer() {
                 <label className="mb-1 block text-xs font-medium text-gray-600">Destino</label>
                 <select
                   value={filters.locationDestinationId || ''}
-                  onChange={(e) => setFilters({ ...filters, locationDestinationId: e.target.value ? Number(e.target.value) : undefined })}
+                  onChange={(e) => {
+                    const value = e.target.value ? Number(e.target.value) : undefined;
+                    setFilters({
+                      ...filters,
+                      locationDestinationId: value,
+                      locationOriginId:
+                        value !== undefined && value === filters.locationOriginId ? undefined : filters.locationOriginId,
+                    });
+                  }}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#c60001] focus:outline-none"
                 >
                   <option value="">Todos</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.cityName}</option>
-                  ))}
+                  {locations
+                    .filter((loc) => loc.id !== filters.locationOriginId)
+                    .map((loc) => (
+                      <option key={loc.id} value={loc.id}>{loc.cityName}</option>
+                    ))}
                 </select>
               </div>
 

@@ -12,6 +12,9 @@ export default function SearchBox() {
   const [destinationId, setDestinationId] = useState('');
   const [date, setDate] = useState('');
 
+  const originOptions = locations.filter((loc) => loc.id !== Number(destinationId));
+  const destinationOptions = locations.filter((loc) => loc.id !== Number(originId));
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
@@ -28,9 +31,17 @@ export default function SearchBox() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
         <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <select value={originId} onChange={(e) => setOriginId(e.target.value)} className={inputClass}>
+        <select
+          value={originId}
+          onChange={(e) => {
+            const value = e.target.value;
+            setOriginId(value);
+            if (value && value === destinationId) setDestinationId('');
+          }}
+          className={inputClass}
+        >
           <option value="">Origen</option>
-          {locations.map((loc) => (
+          {originOptions.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
           ))}
         </select>
@@ -38,9 +49,17 @@ export default function SearchBox() {
 
       <div className="relative flex-1">
         <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <select value={destinationId} onChange={(e) => setDestinationId(e.target.value)} className={inputClass}>
+        <select
+          value={destinationId}
+          onChange={(e) => {
+            const value = e.target.value;
+            setDestinationId(value);
+            if (value && value === originId) setOriginId('');
+          }}
+          className={inputClass}
+        >
           <option value="">Destino</option>
-          {locations.map((loc) => (
+          {destinationOptions.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.cityName}, {loc.state}</option>
           ))}
         </select>
