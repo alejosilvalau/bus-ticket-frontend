@@ -3,11 +3,11 @@ import { Armchair } from 'lucide-react';
 
 interface SeatMapProps {
   seats: SeatAvailability[];
-  selectedSeatId: number | null;
+  selectedSeatIds: number[];
   onSelectSeat: (seat: SeatAvailability) => void;
 }
 
-export default function SeatMap({ seats, selectedSeatId, onSelectSeat }: SeatMapProps) {
+export default function SeatMap({ seats, selectedSeatIds, onSelectSeat }: SeatMapProps) {
   const activeSeats = seats.filter((s) => s.isActive);
   const cols = 4;
 
@@ -32,7 +32,7 @@ export default function SeatMap({ seats, selectedSeatId, onSelectSeat }: SeatMap
 
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {activeSeats.map((seat) => {
-          const isSelected = seat.id === selectedSeatId;
+          const isSelected = selectedSeatIds.includes(seat.id);
           const isUnavailable = !seat.isAvailable;
 
           return (

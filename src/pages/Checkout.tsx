@@ -30,7 +30,7 @@ export default function Checkout() {
   const { data: tripData, isLoading: tripLoading } = useTrip(Number(tripId));
   const { data: seatsData, isLoading: seatsLoading } = useTripSeats(Number(tripId));
 
-  const [selectedSeat, setSelectedSeat] = useState<SeatAvailability | null>(null);
+  const [selectedSeats, setSelectedSeats] = useState<SeatAvailability[]>([]);
   const [booking, setBooking] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -40,12 +40,18 @@ export default function Checkout() {
   const trip = tripData?.data?.data;
   const seats = seatsData?.data?.data || [];
 
-  const finalPrice = trip && selectedSeat
-    ? trip.basePrice + selectedSeat.seatTypeUpcharge
-    : trip?.basePrice || 0;
+  const finalPrice = trip
+    ? trip.basePrice * selectedSeats.length + selectedSeats.reduce((sum, seat) => sum + seat.seatTypeUpcharge, 0)
+    : 0;
+
+  const toggleSeat = (seat: SeatAvailability) => {
+    setSelectedSeats((prev) =>
+      prev.some((s) => s.id === seat.id) ? prev.filter((s) => s.id !== seat.id) : [...prev, seat]
+    );
+  };
 
   const handleBook = async () => {
-    if (!trip || !selectedSeat || !user) return;
+    if (!trip || selectedSeats.length === 0 || !user) return;
 
     const newErrors: { cardNumber?: string; expiry?: string; cvv?: string } = {};
     if (!cardNumber.trim()) newErrors.cardNumber = 'Campo obligatorio';
@@ -56,50 +62,63 @@ export default function Checkout() {
 
     setBooking(true);
     try {
-      const response = await ticketService.create({
-        userId: user.id,
-        tripId: trip.id,
-        seatId: selectedSeat.id,
-      });
-      const createdTicket = response.data.data;
-
-      queryClient.setQueriesData(
-        { queryKey: ['tickets'] },
-        (oldData: unknown) => {
-          if (!oldData || typeof oldData !== 'object') return oldData;
-
-          const responseData = oldData as {
-            data?: {
-              data?: {
-                content?: Array<{ id: number }>;
-                totalElements?: number;
-              };
-            };
-          };
-
-          const pageData = responseData.data?.data;
-          if (!pageData?.content) return oldData;
-
-          const alreadyExists = pageData.content.some((ticket) => ticket.id === createdTicket.id);
-          if (alreadyExists) return oldData;
-
-          return {
-            ...responseData,
-            data: {
-              ...responseData.data,
-              data: {
-                ...pageData,
-                content: [createdTicket, ...pageData.content],
-                totalElements: (pageData.totalElements ?? pageData.content.length) + 1,
-              },
-            },
-          };
-        },
+      const results = await Promise.allSettled(
+        selectedSeats.map((seat) =>
+          ticketService.create({ userId: user.id, tripId: trip.id, seatId: seat.id })
+        )
       );
 
-      showToast('¡Ticket comprado con éxito!', 'success');
+      const fulfilled = results
+        .filter((r): r is PromiseFulfilledResult<Awaited<ReturnType<typeof ticketService.create>>> => r.status === 'fulfilled')
+        .map((r) => r.value.data.data);
+      const failed = results.filter((r) => r.status === 'rejected');
+
+      if (fulfilled.length > 0) {
+        queryClient.setQueriesData(
+          { queryKey: ['tickets'] },
+          (oldData: unknown) => {
+            if (!oldData || typeof oldData !== 'object') return oldData;
+
+            const responseData = oldData as {
+              data?: {
+                data?: {
+                  content?: Array<{ id: number }>;
+                  totalElements?: number;
+                };
+              };
+            };
+
+            const pageData = responseData.data?.data;
+            if (!pageData?.content) return oldData;
+
+            const existingIds = new Set(pageData.content.map((ticket) => ticket.id));
+            const newTickets = fulfilled.filter((ticket) => !existingIds.has(ticket.id));
+
+            if (newTickets.length === 0) return oldData;
+
+            return {
+              ...responseData,
+              data: {
+                ...responseData.data,
+                data: {
+                  ...pageData,
+                  content: [...newTickets, ...pageData.content],
+                  totalElements: (pageData.totalElements ?? pageData.content.length) + newTickets.length,
+                },
+              },
+            };
+          },
+        );
+      }
+
       queryClient.invalidateQueries({ queryKey: ['trip', trip.id, 'seats'] });
-      navigate('/perfil', { state: { activeTab: 'tickets' } });
+
+      if (failed.length === 0) {
+        showToast('¡Ticket comprado con éxito!', 'success');
+        navigate('/perfil', { state: { activeTab: 'tickets' } });
+      } else {
+        showToast(`${fulfilled.length} asiento(s) comprados, ${failed.length} fallaron. Verificá disponibilidad.`, 'error');
+      }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al comprar ticket';
       showToast(msg, 'error');
@@ -127,15 +146,15 @@ export default function Checkout() {
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="flex-1">
           <Card className="p-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Seleccioná tu asiento</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Seleccioná tus asientos</h2>
             <SeatMap
               seats={seats}
-              selectedSeatId={selectedSeat?.id ?? null}
-              onSelectSeat={setSelectedSeat}
+              selectedSeatIds={selectedSeats.map((seat) => seat.id)}
+              onSelectSeat={toggleSeat}
             />
           </Card>
 
-          {selectedSeat && (
+          {selectedSeats.length > 0 && (
             <Card className="mt-4 p-6">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <CreditCard className="h-5 w-5" /> Pago Simulado
@@ -233,25 +252,34 @@ export default function Checkout() {
                 Bus {trip.bus.plateNumber}
               </div>
 
-              {selectedSeat && (
+              {selectedSeats.length > 0 && (
                 <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Asiento seleccionado</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedSeat.letter}{selectedSeat.number} — {selectedSeat.seatTypeName}
-                  </p>
+                  <p className="text-xs text-gray-500">Asientos seleccionados ({selectedSeats.length})</p>
+                  <div className="mt-1 space-y-1">
+                    {selectedSeats.map((seat) => (
+                      <div key={seat.id} className="flex items-center justify-between">
+                        <span className="font-medium text-gray-900">
+                          {seat.letter}{seat.number} — {seat.seatTypeName}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          +${seat.seatTypeUpcharge.toLocaleString('es-AR')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
             <div className="mt-4 border-t border-gray-200 pt-4">
               <div className="flex justify-between text-sm text-gray-600">
-                <span>Precio base</span>
-                <span>${trip.basePrice.toLocaleString('es-AR')}</span>
+                <span>Precio base × {Math.max(selectedSeats.length, 1)}</span>
+                <span>${(trip.basePrice * Math.max(selectedSeats.length, 1)).toLocaleString('es-AR')}</span>
               </div>
-              {selectedSeat && (
+              {selectedSeats.length > 0 && (
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Recargo ({selectedSeat.seatTypeName})</span>
-                  <span>${selectedSeat.seatTypeUpcharge.toLocaleString('es-AR')}</span>
+                  <span>Recargos</span>
+                  <span>+${selectedSeats.reduce((sum, seat) => sum + seat.seatTypeUpcharge, 0).toLocaleString('es-AR')}</span>
                 </div>
               )}
               <div className="mt-2 flex justify-between text-lg font-bold">
@@ -263,7 +291,7 @@ export default function Checkout() {
             <Button
               onClick={handleBook}
               loading={booking}
-              disabled={!selectedSeat}
+              disabled={selectedSeats.length === 0}
               className="mt-4 w-full"
             >
               Confirmar y Pagar
