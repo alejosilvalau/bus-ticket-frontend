@@ -13,10 +13,10 @@ export default function Home() {
     <div>
       <section className="relative bg-gradient-to-br from-[#667eea] to-[#764ba2] px-4 py-20 text-white">
         <div className="mx-auto max-w-4xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-medium backdrop-blur-sm">
+          <span className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-medium capitalize backdrop-blur-sm">
             Reservá tu próximo viaje
           </span>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+          <h1 className="mb-4 text-3xl font-bold capitalize md:text-4xl">
             Reserva tu viaje en autobús en segundos
           </h1>
           <p className="mb-8 text-lg text-white/80">
