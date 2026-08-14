@@ -4,7 +4,7 @@ import type { LoginRequest, LoginResponse, CreateUser, UserDTO, ChangePassword }
 
 export const authService = {
   login(data: LoginRequest) {
-    return api.post<ApiResponse<LoginResponse>>('/identity/auth/login', data);
+    return api.post<ApiResponse<LoginResponse>>('/identity/auth/login', data, { skipAuthRedirectOn401: true });
   },
 
   logout() {
