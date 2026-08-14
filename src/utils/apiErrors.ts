@@ -30,6 +30,8 @@ const DICTIONARY: Record<string, string> = {
   'You can only modify your own tickets': 'Solo podés modificar tus propios tickets',
   'Ticket is already cancelled.': 'El ticket ya está cancelado.',
   'Insufficient seats available': 'No hay suficientes asientos disponibles',
+  'Seat already booked for this trip': 'El asiento ya está reservado para este viaje',
+  'Data conflict. Please try again.': 'Conflicto de datos. Intentá de nuevo.',
   'You can only update your own profile': 'Solo podés actualizar tu propio perfil',
   'must not be null': 'no debe ser nulo',
   'must not be blank': 'no debe estar vacío',
