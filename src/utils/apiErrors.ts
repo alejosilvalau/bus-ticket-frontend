@@ -42,6 +42,7 @@ const DICTIONARY: Record<string, string> = {
   'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&)': 'La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial (@$!%*?&)',
   'Phone number must be valid (e.g. +541112345678)': 'El número de teléfono debe ser válido (ej. +541112345678)',
   'Plate number must be a valid Argentine plate (e.g. ab123cd or abc123)': 'La patente debe ser una patente argentina válida (ej. AB123CD o ABC123)',
+  'License number must be a valid Argentine DNI (7 or 8 digits)': 'El número de licencia debe ser un DNI argentino válido (7 u 8 dígitos)',
 };
 
 const RESOURCE_ES: Record<string, string> = {
