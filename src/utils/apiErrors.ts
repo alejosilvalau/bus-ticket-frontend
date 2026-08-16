@@ -43,6 +43,8 @@ const DICTIONARY: Record<string, string> = {
   'Phone number must be valid (e.g. +541112345678)': 'El número de teléfono debe ser válido (ej. +541112345678)',
   'Plate number must be a valid Argentine plate (e.g. ab123cd or abc123)': 'La patente debe ser una patente argentina válida (ej. AB123CD o ABC123)',
   'License number must be a valid Argentine DNI (7 or 8 digits)': 'El número de licencia debe ser un DNI argentino válido (7 u 8 dígitos)',
+  'Name must contain only letters, spaces, hyphens or apostrophes': 'El nombre solo debe contener letras, espacios, guiones o apóstrofes',
+  'Email must be from a known provider (e.g. gmail.com, outlook.com)': 'El email debe ser de un proveedor conocido (ej. gmail.com, outlook.com)',
 };
 
 const RESOURCE_ES: Record<string, string> = {
