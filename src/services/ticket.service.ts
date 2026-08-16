@@ -36,6 +36,6 @@ export const ticketService = {
   },
 
   getFinalPrice(data: FinalPriceRequest) {
-    return api.post<ApiResponse<number>>('/booking/processor/tickets/final-price', data);
+    return api.get<ApiResponse<number>>('/booking/processor/tickets/final-price', { params: data });
   },
 };
